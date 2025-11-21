@@ -6,13 +6,12 @@ export default async function Home() {
   const session = await auth();
 
   if (session?.user) {
+    // Your existing session logic here
   }
 
   return (
     <HydrateClient>
-      <main>
-        <HomeComponent />
-      </main>
+      <HomeComponent />
     </HydrateClient>
   );
 }
