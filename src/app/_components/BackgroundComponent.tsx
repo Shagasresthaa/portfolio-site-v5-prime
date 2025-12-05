@@ -1,6 +1,6 @@
 export default function BackgroundComponent() {
   return (
-    <div className="fixed inset-0 -z-10 flex items-stretch overflow-hidden">
+    <div className="pointer-events-none fixed inset-0 -z-10 flex items-stretch overflow-hidden">
       {/* Left side with telescope and laptop - hidden on mobile */}
       <div className="hidden flex-1 flex-col md:flex">
         {/* Telescope - top half */}

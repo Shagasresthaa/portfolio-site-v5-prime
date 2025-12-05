@@ -10,16 +10,16 @@
     var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 
-  /* Add custom font families */
+  /* Custom font families */
   --font-charm: "Charm", cursive;
   --font-pacifico: "Pacifico", cursive;
   --font-salsa: "Salsa", cursive;
   --font-kalam: "Kalam", cursive;
 
-  /* Add custom colors */
+  /* Custom colors */
   --color-portfolio-bg: rgba(10, 54, 98, 0.75);
-  --color-bg-secondary: rgba(30, 90, 142, 0.5); /* Cards, overlays */
-  --color-bg-tertiary: rgba(45, 122, 184, 0.3); /* Lighter overlays */
+  --color-bg-secondary: rgba(30, 90, 142, 0.5);
+  --color-bg-tertiary: rgba(45, 122, 184, 0.3);
 
   /* Text - Whites & Grays */
   --color-text-primary: rgba(248, 250, 252, 1); /* Pure white - main text */
@@ -55,4 +55,8 @@ body {
   padding: 0;
   min-height: 100vh;
   background-color: var(--color-portfolio-bg);
+}
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
 }
