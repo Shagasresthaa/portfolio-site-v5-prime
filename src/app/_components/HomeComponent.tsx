@@ -126,20 +126,20 @@ export default function HomeComponent() {
           <img
             src="/assets/propic.jpg"
             alt="Shaga Sresthaa"
-            className="h-48 w-48 rounded-full object-cover shadow-2xl ring-4 ring-white/20 transition-transform duration-300 hover:scale-105 md:h-60 md:w-60"
+            className="h-48 w-48 rounded-full object-cover shadow-2xl ring-4 ring-white/20 transition-transform duration-300 hover:scale-105 md:h-45 md:w-45"
           />
         </div>
 
         {/* Introduction */}
         <div className="text-center">
           <h2
-            className="mb-2 text-2xl font-light tracking-wide md:text-3xl"
+            className="mb-2 text-xl font-light tracking-wide sm:text-2xl md:text-xl"
             style={{ fontFamily: "var(--font-salsa)" }}
           >
             Greetings! My name is
           </h2>
           <h1
-            className="mb-8 text-5xl font-bold tracking-wide md:text-7xl"
+            className="mb-6 text-4xl font-bold tracking-wide sm:text-5xl md:text-4xl"
             style={{
               fontFamily: "var(--font-salsa)",
               color: "var(--color-text-blue-light)",
@@ -151,24 +151,16 @@ export default function HomeComponent() {
 
         {/* Bio */}
         <div
-          className="mb-8 max-w-7xl space-y-2 text-center text-lg md:text-3xl"
+          className="mb-6 max-w-7xl space-y-1 text-center text-base sm:text-lg md:text-2xl lg:text-2xl"
           style={{ fontFamily: "var(--font-kalam)" }}
         >
-          <p>Computer Science Grad Student @ Western Michigan University</p>
-          <p>
-            Astronomy & Electronics Enthusiast || TCS Alumni || Full Stack
-            Developer
-          </p>
-          <p>
-            Head Lead Dev @ Systems Community and Lead Dev @ Web Community at Developer Club WMU
-          </p>
-          <p>
-            Graduate Student Member of IEEE Computer Society || Member of the Kalamazoo Astronomical Society
-          </p>
+          <p>CS Grad Student @ Western Michigan University</p>
+          <p>TCS Alumni || Full Stack Developer</p>
+          <p>Officer (Head Lead Developer) @ Developer Club WMU</p>
         </div>
 
         {/* Social Links */}
-        <div className="flex flex-wrap items-center justify-center gap-6">
+        <div className="mb-12 flex flex-wrap items-center justify-center gap-4 md:gap-6">
           {socialLinks.map((link) => (
             <a
               key={link.label}
@@ -178,11 +170,19 @@ export default function HomeComponent() {
               className={`text-white transition-all duration-300 hover:scale-110 ${link.hoverColor}`}
               aria-label={link.label}
             >
-              {link.icon}
+              <div className="h-7 w-7 md:h-8 md:w-8">{link.icon}</div>
             </a>
           ))}
         </div>
 
+        <p
+          style={{
+            fontFamily: "var(--font-salsa)",
+            color: "var(--color-text-muted)",
+          }}
+        >
+          Scroll down to find out more!
+        </p>
         {/* Scroll Down Button */}
         <button
           onClick={handleScrollToAbout}
@@ -191,7 +191,10 @@ export default function HomeComponent() {
         >
           <div className="flex flex-col items-center gap-2">
             <FaChevronDown className="h-8 w-8 text-white transition-all duration-300 group-hover:text-[var(--color-text-blue-light)]" />
-            <span className="text-sm opacity-0 transition-opacity duration-300 group-hover:opacity-100" style={{ fontFamily: "var(--font-kalam)" }}>
+            <span
+              className="text-sm opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+              style={{ fontFamily: "var(--font-kalam)" }}
+            >
               Find out more!
             </span>
           </div>
@@ -209,17 +212,23 @@ export default function HomeComponent() {
             <img
               src="/assets/about.jpg"
               alt="About Me"
-              className="h-64 w-64 rounded-lg object-cover shadow-2xl ring-4 ring-white/20 md:h-80 md:w-80"
+              className="h-64 w-64 rounded-lg object-cover shadow-2xl ring-4 ring-white/20 md:h-50 md:w-50"
             />
             <p
-              className="text-center text-xl font-bold leading-relaxed md:text-left md:text-2xl text-justify"
+              className="text-justify text-xl leading-relaxed font-bold md:text-justify md:text-xl"
               style={{
                 fontFamily: "var(--font-kalam)",
                 color: "var(--color-text-blue-light)",
               }}
             >
-              
-Everyone's talking AI. Big Tech is pushing it everywhere. Every startup claims they need machine learning. Some applications are brilliant and justified. Others? Questionable at best. In a landscape full of buzzwords and hype, how do we cut through the noise and ask the hard questions: Is this the right tool, or just the trendy one? Does this problem really need AI, or does it just need good old solid engineering? That's where I come in.
+              Everyone's talking AI. Big Tech is pushing it everywhere. Every
+              startup claims they need machine learning. Some applications are
+              brilliant and justified. Others? Questionable at best. In a
+              landscape full of buzzwords and hype, how do we cut through the
+              noise and ask the hard questions? Is this the right tool, or just
+              the trendy one that everyone's chasing? Does this problem really
+              need AI, or does it just need good old solid engineering? That's
+              where I come in.
             </p>
           </div>
 
@@ -228,19 +237,42 @@ Everyone's talking AI. Big Tech is pushing it everywhere. Every startup claims t
             className="mb-16 space-y-6 text-lg leading-relaxed md:text-xl"
             style={{ fontFamily: "var(--font-kalam)" }}
           >
-            <p className="indent-12 text-justify">
-              I'm a Master's student in Computer Science at Western Michigan University, specializing in systems development and architecture. My core expertise lies in building robust, scalable systems, from backend infrastructure and database design to distributed systems and performance optimization.
+            <p className="text-justify indent-12">
+              I'm a Master's student in Computer Science at Western Michigan
+              University, specializing in systems development and architecture.
+              My core expertise lies in building robust, scalable systems, from
+              backend infrastructure and database design to distributed systems
+              and performance optimization.
             </p>
 
-            <p className="indent-12 text-justify">
-              But I'm not dogmatic about any single approach. I've upskilled in Artificial Intelligence and Machine Learning because modern problems sometimes demand intelligent, adaptive solutions. The key word? Sometimes. I believe in reaching for the right tool for the job, whether that's a well-architected database, a clever algorithm, a distributed system, or yes, when truly justified, machine learning.
+            <p className="text-justify indent-12">
+              But I'm not dogmatic about any single approach. I've upskilled in
+              Artificial Intelligence and Machine Learning because modern
+              problems sometimes demand intelligent, adaptive solutions. The key
+              word? Sometimes. I believe in reaching for the right tool for the
+              job, whether that's a well-architected database, a clever
+              algorithm, a distributed system, or yes, when truly justified,
+              machine learning.
             </p>
 
-            <p className="indent-12 text-justify">
-              My approach is grounded in asking "Okay but why?" before "how do we implement it?", understanding the problem deeply before choosing the solution. I build systems that are reliable, scalable, and maintainable, using whatever technology genuinely serves the goal rather than chasing what's trendy. I thrive in environments that value thoughtful engineering over hype, where teams solve real problems instead of collecting buzzwords. Whether it's designing systems that scale, optimizing performance bottlenecks, integrating intelligent features where they make sense, or knowing when simpler is better, I'm drawn to work that demands both technical rigor and critical thinking.
+            <p className="text-justify indent-12">
+              My approach is grounded in asking "Okay but why?" before "how do
+              we implement it?", understanding the problem deeply before
+              choosing the solution. I build systems that are reliable,
+              scalable, and maintainable, using whatever technology genuinely
+              serves the goal rather than chasing what's trendy. I thrive in
+              environments that value thoughtful engineering over hype, where
+              teams solve real problems instead of collecting buzzwords. Whether
+              it's designing systems that scale, optimizing performance
+              bottlenecks, integrating intelligent features where they make
+              sense, or knowing when simpler is better, I'm drawn to work that
+              demands both technical rigor and critical thinking.
             </p>
-            <p className="indent-12 text-justify">
-              If you're building systems that matter, want to discuss architecture patterns, debate when AI actually makes sense, or just appreciate the occasional sci-fi reference, let's connect. Always open to new opportunities and conversations.
+            <p className="text-justify indent-12">
+              If you're building systems that matter, want to discuss
+              architecture patterns, debate when AI actually makes sense, or
+              just appreciate the occasional sci-fi reference, let's connect.
+              Always open to new opportunities and conversations.
             </p>
           </div>
 
@@ -253,11 +285,11 @@ Everyone's talking AI. Big Tech is pushing it everywhere. Every startup claims t
                 color: "var(--color-text-blue-light)",
               }}
             >
-              My Journey
+              My Journey so far
             </h2>
 
             {/* Timeline Line - Hidden on mobile */}
-            <div className="absolute left-1/2 top-20 hidden h-full w-1 -translate-x-1/2 bg-gradient-to-b from-[var(--color-accent-primary)] to-[var(--color-accent-cyan)] md:block"></div>
+            <div className="absolute top-20 left-1/2 hidden h-full w-1 -translate-x-1/2 bg-gradient-to-b from-[var(--color-accent-primary)] to-[var(--color-accent-cyan)] md:block"></div>
 
             {/* Timeline Events */}
             <div className="space-y-12">
@@ -270,7 +302,7 @@ Everyone's talking AI. Big Tech is pushing it everywhere. Every startup claims t
                 >
                   {/* Timeline Card */}
                   <div
-                    className={`w-full md:w-5/12 rounded-lg bg-[var(--color-bg-secondary)] p-6 shadow-xl transition-all duration-300 hover:scale-105 hover:bg-[var(--color-bg-tertiary)] ${
+                    className={`w-full rounded-lg bg-[var(--color-bg-secondary)] p-6 shadow-xl transition-all duration-300 hover:scale-105 hover:bg-[var(--color-bg-tertiary)] md:w-5/12 ${
                       index % 2 === 0 ? "md:mr-auto" : "md:ml-auto"
                     }`}
                   >
