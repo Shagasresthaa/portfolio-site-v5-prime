@@ -241,7 +241,7 @@ export default function HomeComponent() {
               I'm a Master's student in Computer Science at Western Michigan
               University, specializing in systems development and architecture.
               My core expertise lies in building robust, scalable systems, from
-              backend infrastructure and database design to distributed systems
+              infrastructure to efficient business logic to distributed systems
               and performance optimization.
             </p>
 
@@ -250,29 +250,30 @@ export default function HomeComponent() {
               Artificial Intelligence and Machine Learning because modern
               problems sometimes demand intelligent, adaptive solutions. The key
               word? Sometimes. I believe in reaching for the right tool for the
-              job, whether that's a well-architected database, a clever
-              algorithm, a distributed system, or yes, when truly justified,
-              machine learning.
+              right job, whether that's a well architected database, a cheeky
+              clever algorithm, a distributed system, or yes, when truly
+              justified, machine learning.
             </p>
 
             <p className="text-justify indent-12">
-              My approach is grounded in asking "Okay but why?" before "how do
-              we implement it?", understanding the problem deeply before
-              choosing the solution. I build systems that are reliable,
-              scalable, and maintainable, using whatever technology genuinely
-              serves the goal rather than chasing what's trendy. I thrive in
-              environments that value thoughtful engineering over hype, where
-              teams solve real problems instead of collecting buzzwords. Whether
-              it's designing systems that scale, optimizing performance
-              bottlenecks, integrating intelligent features where they make
-              sense, or knowing when simpler is better, I'm drawn to work that
-              demands both technical rigor and critical thinking.
+              My approach is focused in asking "Okay but why?" before "how do we
+              implement it?", understanding the problem deeply before choosing
+              the solution. I build systems that are reliable, scalable, and
+              maintainable, using whatever technology fits to serves the goal
+              rather than chasing what's trendy. I thrive in environments that
+              value engineering over hype, where teams solve real problems
+              instead of collecting buzzwords. Whether it's designing systems
+              that scale, optimizing performance bottlenecks, integrating
+              intelligent features where they are actually required, or knowing
+              when simpler is better, I'm drawn to work that demands both
+              technical rigor and critical thinking.
             </p>
             <p className="text-justify indent-12">
-              If you're building systems that matter, want to discuss
-              architecture patterns, debate when AI actually makes sense, or
-              just appreciate the occasional sci-fi reference, let's connect.
-              Always open to new opportunities and conversations.
+              If you're building systems that are reliant, efficient and
+              dependable or want to discuss architecture design patterns, debate
+              when AI actually makes sense, or just appreciate the occasional
+              sci-fi reference, let's connect. Always open to new opportunities
+              and conversations.
             </p>
           </div>
 

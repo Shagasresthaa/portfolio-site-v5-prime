@@ -1,6 +1,5 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -47,6 +46,7 @@ model User {
   email         String?   @unique
   emailVerified DateTime?
   image         String?
+  role          Role      @default(USER)
   accounts      Account[]
   sessions      Session[]
 }
@@ -74,10 +74,11 @@ model Project {
   techStacks             String
   projectUrl             String?
   liveUrl                String?
+  image                  Bytes?
+  imageType              String?
 }
 
-// Enmums structure for the tables
-
+// Enums structure for the tables
 enum StatusFlags {
   PLANNING
   IN_PROGRESS
@@ -102,4 +103,9 @@ enum SourceCodeAvailibility {
   OPEN_SOURCE
   CLOSED_SOURCE
   UNDER_NDA
+}
+
+enum Role {
+  USER
+  ADMIN
 }
