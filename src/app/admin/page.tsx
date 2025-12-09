@@ -21,7 +21,7 @@ export default function AdminPage() {
     {
       title: "Blog",
       description: "Manage blog posts",
-      href: "#",
+      href: "/admin/blog",
       icon: <FaBlog className="h-16 w-16" />,
       color: "bg-green-600/30 hover:bg-green-600/50 backdrop-blur-md",
       disabled: false,
