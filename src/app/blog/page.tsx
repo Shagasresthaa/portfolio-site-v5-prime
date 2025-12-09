@@ -156,7 +156,7 @@ export default function BlogPage() {
 
                 {/* Excerpt */}
                 <p
-                  className="mb-4 flex-grow text-white/80"
+                  className="mb-4 grow text-white/80"
                   style={{ fontFamily: "var(--font-kalam)" }}
                 >
                   {post.excerpt}
@@ -166,7 +166,7 @@ export default function BlogPage() {
                 <div className="space-y-2 text-sm text-white/60">
                   {post.publishedAt && (
                     <div className="flex items-center gap-2">
-                      <FaCalendar className="flex-shrink-0" />
+                      <FaCalendar className="shrink-0" />
                       <span>
                         {new Date(post.publishedAt).toLocaleDateString(
                           "en-US",
@@ -181,7 +181,7 @@ export default function BlogPage() {
                   )}
                   {post.tags && (
                     <div className="flex items-start gap-2">
-                      <FaTags className="mt-1 flex-shrink-0" />
+                      <FaTags className="mt-1 shrink-0" />
                       <div className="flex flex-wrap gap-2">
                         {post.tags.split(",").map((tag, idx) => (
                           <span
