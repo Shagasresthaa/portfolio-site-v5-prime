@@ -1,5 +1,233 @@
 "use client";
 
+import { api } from "@/trpc/react";
+import { useState, useMemo } from "react";
+import { FaTags, FaChevronLeft, FaChevronRight } from "react-icons/fa";
+
 export default function MomentsPage() {
-  return <h1>Hello from Moments</h1>;
+  const [page, setPage] = useState(1);
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
+
+  const { data, isLoading } = api.gallery.getAll.useQuery({ page, limit: 12 });
+
+  // Get all unique tags from current page
+  const allTags = useMemo(() => {
+    if (!data?.items) return [];
+    const tagSet = new Set<string>();
+    data.items.forEach((item) => {
+      if (item.tags) {
+        item.tags.split(",").forEach((tag) => tagSet.add(tag.trim()));
+      }
+    });
+    return Array.from(tagSet).sort();
+  }, [data?.items]);
+
+  // Filter items by tag (client-side filtering on current page)
+  const filteredItems = useMemo(() => {
+    if (!data?.items) return [];
+
+    return data.items.filter((item) => {
+      const matchesTag = selectedTag
+        ? item.tags
+            .split(",")
+            .map((t) => t.trim())
+            .includes(selectedTag)
+        : true;
+
+      return matchesTag;
+    });
+  }, [data?.items, selectedTag]);
+
+  // Extract YouTube video ID from URL
+  const getYouTubeId = (url: string) => {
+    const regExp =
+      /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+    return match?.[2]?.length === 11 ? match[2] : null;
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <p className="text-xl text-white">Loading moments...</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="container mx-auto min-h-screen px-4 pt-24 pb-12">
+      {/* Header */}
+      <div className="mb-12 text-center">
+        <h1
+          className="mb-4 text-5xl font-bold text-white md:text-6xl"
+          style={{ fontFamily: "var(--font-salsa)" }}
+        >
+          Moments
+        </h1>
+        <p
+          className="text-xl text-white/80 md:text-2xl"
+          style={{ fontFamily: "var(--font-kalam)" }}
+        >
+          A collection of highlights, demos, and achievements
+        </p>
+      </div>
+
+      {/* Tag Filters */}
+      {allTags.length > 0 && (
+        <div className="mb-8 flex flex-wrap items-center gap-2">
+          <FaTags className="text-white/70" />
+          <button
+            onClick={() => setSelectedTag(null)}
+            className={`rounded-full px-4 py-2 text-sm transition ${
+              selectedTag === null
+                ? "bg-blue-600/50 text-white"
+                : "bg-white/10 text-white/70 hover:bg-white/20"
+            }`}
+          >
+            All
+          </button>
+          {allTags.map((tag) => (
+            <button
+              key={tag}
+              onClick={() => setSelectedTag(tag)}
+              className={`rounded-full px-4 py-2 text-sm transition ${
+                selectedTag === tag
+                  ? "bg-blue-600/50 text-white"
+                  : "bg-white/10 text-white/70 hover:bg-white/20"
+              }`}
+            >
+              {tag}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Masonry Grid */}
+      {filteredItems && filteredItems.length > 0 ? (
+        <>
+          <div className="columns-1 gap-6 md:columns-2 lg:columns-3">
+            {filteredItems.map((item) => (
+              <div
+                key={item.id}
+                className="mb-6 break-inside-avoid overflow-hidden rounded-2xl border border-white/20 bg-white/5 backdrop-blur-md transition-all duration-300 hover:bg-white/10"
+              >
+                {/* Media */}
+                {item.mediaType === "IMAGE" && item.imageType ? (
+                  <img
+                    src={`/api/gallery/${item.id}/image`}
+                    alt={item.title}
+                    className="w-full object-cover"
+                  />
+                ) : item.mediaType === "VIDEO" && item.videoUrl ? (
+                  <div className="relative aspect-video w-full">
+                    <iframe
+                      src={`https://www.youtube.com/embed/${getYouTubeId(item.videoUrl)}`}
+                      title={item.title}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      className="h-full w-full"
+                    />
+                  </div>
+                ) : null}
+
+                {/* Content */}
+                <div className="p-4">
+                  <h2
+                    className="mb-2 text-xl font-bold text-white"
+                    style={{ fontFamily: "var(--font-salsa)" }}
+                  >
+                    {item.title}
+                  </h2>
+
+                  {item.description && (
+                    <p
+                      className="mb-3 text-white/80"
+                      style={{ fontFamily: "var(--font-kalam)" }}
+                    >
+                      {item.description}
+                    </p>
+                  )}
+
+                  {item.caption && (
+                    <p className="mb-3 text-sm text-white/60 italic">
+                      "{item.caption}"
+                    </p>
+                  )}
+
+                  {/* Tags */}
+                  {item.tags && (
+                    <div className="flex flex-wrap gap-2">
+                      {item.tags.split(",").map((tag, idx) => (
+                        <span
+                          key={idx}
+                          className="rounded-full bg-white/10 px-2 py-1 text-xs text-white"
+                        >
+                          {tag.trim()}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Pagination */}
+          {data && data.totalPages > 1 && (
+            <div className="mt-12 flex items-center justify-center gap-4">
+              <button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="flex items-center gap-2 rounded-lg bg-white/10 px-4 py-2 text-white backdrop-blur-md transition hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <FaChevronLeft />
+                Previous
+              </button>
+
+              <div className="flex items-center gap-2">
+                {Array.from({ length: data.totalPages }, (_, i) => i + 1).map(
+                  (pageNum) => (
+                    <button
+                      key={pageNum}
+                      onClick={() => setPage(pageNum)}
+                      className={`h-10 w-10 rounded-lg transition ${
+                        page === pageNum
+                          ? "bg-blue-600/50 text-white"
+                          : "bg-white/10 text-white/70 hover:bg-white/20"
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  ),
+                )}
+              </div>
+
+              <button
+                onClick={() => setPage((p) => Math.min(data.totalPages, p + 1))}
+                disabled={page === data.totalPages}
+                className="flex items-center gap-2 rounded-lg bg-white/10 px-4 py-2 text-white backdrop-blur-md transition hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Next
+                <FaChevronRight />
+              </button>
+            </div>
+          )}
+        </>
+      ) : (
+        <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-white/30 bg-white/5 p-12 backdrop-blur-md">
+          <p className="text-xl text-white/80">
+            {selectedTag ? "No moments found with this tag" : "No moments yet"}
+          </p>
+          {selectedTag && (
+            <button
+              onClick={() => setSelectedTag(null)}
+              className="mt-4 text-blue-400 hover:text-blue-300"
+            >
+              Clear filter
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
 }
