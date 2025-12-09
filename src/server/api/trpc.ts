@@ -126,6 +126,15 @@ export const protectedProcedure = t.procedure
     if (!ctx.session?.user) {
       throw new TRPCError({ code: "UNAUTHORIZED" });
     }
+
+    // Check for ADMIN role
+    if (ctx.session.user.role !== "ADMIN") {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: "No you don't son!",
+      });
+    }
+
     return next({
       ctx: {
         // infers the `session` as non-nullable

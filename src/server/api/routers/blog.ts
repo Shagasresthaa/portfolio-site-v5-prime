@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
+import { imageValidationSchema } from "@/lib/validators";
 
 // Blog Post input schema
 const blogPostInputSchema = z.object({
@@ -100,7 +101,10 @@ export const blogRouter = createTRPCRouter({
     .input(blogPostInputSchema)
     .mutation(async ({ ctx, input }) => {
       const { coverImage, imageType, ...postData } = input;
-
+      // Validate cover image if provided
+      if (coverImage && imageType) {
+        imageValidationSchema.parse({ image: coverImage, imageType });
+      }
       return ctx.db.blogPost.create({
         data: {
           ...postData,
@@ -120,7 +124,10 @@ export const blogRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       const { coverImage, imageType, ...postData } = input.data;
-
+      // Validate cover image if provided
+      if (coverImage && imageType) {
+        imageValidationSchema.parse({ image: coverImage, imageType });
+      }
       return ctx.db.blogPost.update({
         where: { id: input.id },
         data: {
@@ -191,6 +198,11 @@ export const blogRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
+      // Validate image
+      imageValidationSchema.parse({
+        image: input.image,
+        imageType: input.imageType,
+      });
       return ctx.db.blogImage.create({
         data: {
           image: Buffer.from(input.image, "base64"),

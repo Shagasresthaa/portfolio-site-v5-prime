@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { type BlogPost } from "@prisma/client";
+import ReactMarkdown from "react-markdown";
 
 interface BlogPostFormProps {
   initialData?: BlogPost;
@@ -200,7 +201,7 @@ export function BlogPostForm({
         </div>
         {showPreview ? (
           <div className="prose prose-invert max-w-none rounded border border-white/30 bg-white/5 p-4">
-            <div dangerouslySetInnerHTML={{ __html: formData.content }} />
+            <ReactMarkdown>{formData.content}</ReactMarkdown>
           </div>
         ) : (
           <textarea
