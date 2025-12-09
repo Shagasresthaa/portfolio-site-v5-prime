@@ -7,6 +7,7 @@ import remarkGfm from "remark-gfm";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { FaCalendar, FaTags } from "react-icons/fa";
+import DOMPurify from "isomorphic-dompurify";
 
 export default function BlogPostPage({
   params,
@@ -211,9 +212,12 @@ export default function BlogPostPage({
                   className="rounded-2xl border border-white/20 bg-white/5 p-6 backdrop-blur-md"
                 >
                   <div className="mb-2">
-                    <span className="font-semibold text-white">
-                      {comment.name || "Anonymous"}
-                    </span>
+                    <span
+                      className="font-semibold text-white"
+                      dangerouslySetInnerHTML={{
+                        __html: DOMPurify.sanitize(comment.name || "Anonymous"),
+                      }}
+                    />
                     <span className="ml-3 text-sm text-white/50">
                       {new Date(comment.createdAt).toLocaleDateString()}
                     </span>
@@ -221,9 +225,10 @@ export default function BlogPostPage({
                   <p
                     className="text-white/80"
                     style={{ fontFamily: "var(--font-kalam)" }}
-                  >
-                    {comment.content}
-                  </p>
+                    dangerouslySetInnerHTML={{
+                      __html: DOMPurify.sanitize(comment.content),
+                    }}
+                  />
                 </div>
               ))
             ) : (

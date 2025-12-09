@@ -6,6 +6,7 @@ import {
   AffiliationTypes,
   SourceCodeAvailibility,
 } from "@prisma/client";
+import { imageValidationSchema } from "@/lib/validators";
 
 // Convert Prisma enums to Zod enums
 const StatusFlagsEnum = z.enum([
@@ -55,6 +56,11 @@ export const projectsRouter = createTRPCRouter({
     .input(projectInputSchema)
     .mutation(async ({ ctx, input }) => {
       const { image, imageType, ...projectData } = input;
+
+      // Validate image if provided
+      if (image && imageType) {
+        imageValidationSchema.parse({ image, imageType });
+      }
 
       const project = await ctx.db.project.create({
         data: {
@@ -113,6 +119,10 @@ export const projectsRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       const { image, imageType, ...projectData } = input.data;
+      // Validate image if provided
+      if (image && imageType) {
+        imageValidationSchema.parse({ image, imageType });
+      }
 
       const updatedProject = await ctx.db.project.update({
         where: { id: input.id },

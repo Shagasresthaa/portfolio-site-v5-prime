@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { MediaType } from "@prisma/client";
+import { imageValidationSchema } from "@/lib/validators";
 
 const MediaTypeEnum = z.enum([MediaType.IMAGE, MediaType.VIDEO]);
 
@@ -73,7 +74,10 @@ export const galleryRouter = createTRPCRouter({
     .input(galleryItemInputSchema)
     .mutation(async ({ ctx, input }) => {
       const { image, imageType, ...itemData } = input;
-
+      // Validate image if provided
+      if (image && imageType) {
+        imageValidationSchema.parse({ image, imageType });
+      }
       return ctx.db.galleryItem.create({
         data: {
           ...itemData,
@@ -93,7 +97,10 @@ export const galleryRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       const { image, imageType, ...itemData } = input.data;
-
+      // Validate image if provided
+      if (image && imageType) {
+        imageValidationSchema.parse({ image, imageType });
+      }
       return ctx.db.galleryItem.update({
         where: { id: input.id },
         data: {

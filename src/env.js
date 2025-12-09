@@ -7,10 +7,9 @@ export const env = createEnv({
    * isn't built with invalid env vars.
    */
   server: {
-    AUTH_SECRET:
-      process.env.NODE_ENV === "production"
-        ? z.string()
-        : z.string().optional(),
+    AUTH_SECRET: z
+      .string()
+      .min(32, "AUTH_SECRET must be at least 32 characters"),
     AUTH_DISCORD_ID: z.string(),
     AUTH_DISCORD_SECRET: z.string(),
     DATABASE_URL: z.string().url(),
