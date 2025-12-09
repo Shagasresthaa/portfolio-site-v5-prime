@@ -2,10 +2,46 @@
 
 import { api } from "@/trpc/react";
 import Link from "next/link";
-import { FaCalendar, FaTags } from "react-icons/fa";
+import { useState, useMemo } from "react";
+import { FaCalendar, FaTags, FaSearch } from "react-icons/fa";
 
 export default function BlogPage() {
   const { data: posts, isLoading } = api.blog.getPublishedPosts.useQuery();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
+
+  // Get all unique tags
+  const allTags = useMemo(() => {
+    if (!posts) return [];
+    const tagSet = new Set<string>();
+    posts.forEach((post) => {
+      if (post.tags) {
+        post.tags.split(",").forEach((tag) => tagSet.add(tag.trim()));
+      }
+    });
+    return Array.from(tagSet).sort();
+  }, [posts]);
+
+  // Filter posts by search query and selected tag
+  const filteredPosts = useMemo(() => {
+    if (!posts) return [];
+
+    return posts.filter((post) => {
+      const matchesSearch = searchQuery
+        ? post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          post.excerpt.toLowerCase().includes(searchQuery.toLowerCase())
+        : true;
+
+      const matchesTag = selectedTag
+        ? post.tags
+            .split(",")
+            .map((t) => t.trim())
+            .includes(selectedTag)
+        : true;
+
+      return matchesSearch && matchesTag;
+    });
+  }, [posts, searchQuery, selectedTag]);
 
   if (isLoading) {
     return (
@@ -33,10 +69,65 @@ export default function BlogPage() {
         </p>
       </div>
 
+      {/* Search and Filters */}
+      <div className="mb-8 space-y-4">
+        {/* Search Bar */}
+        <div className="relative">
+          <FaSearch className="absolute top-1/2 left-4 -translate-y-1/2 text-white/50" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search posts by title or content..."
+            className="w-full rounded-lg border border-white/30 bg-white/10 py-3 pr-4 pl-12 text-white placeholder-white/50 backdrop-blur-md focus:border-blue-400 focus:outline-none"
+          />
+        </div>
+
+        {/* Tag Filters */}
+        {allTags.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-sm font-semibold text-white/70">
+              Filter by tag:
+            </span>
+            <button
+              onClick={() => setSelectedTag(null)}
+              className={`rounded-full px-4 py-2 text-sm transition ${
+                selectedTag === null
+                  ? "bg-blue-600/50 text-white"
+                  : "bg-white/10 text-white/70 hover:bg-white/20"
+              }`}
+            >
+              All
+            </button>
+            {allTags.map((tag) => (
+              <button
+                key={tag}
+                onClick={() => setSelectedTag(tag)}
+                className={`rounded-full px-4 py-2 text-sm transition ${
+                  selectedTag === tag
+                    ? "bg-blue-600/50 text-white"
+                    : "bg-white/10 text-white/70 hover:bg-white/20"
+                }`}
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Results count */}
+        {(searchQuery || selectedTag) && (
+          <p className="text-sm text-white/60">
+            Found {filteredPosts.length} post
+            {filteredPosts.length !== 1 ? "s" : ""}
+          </p>
+        )}
+      </div>
+
       {/* Posts List */}
-      {posts && posts.length > 0 ? (
+      {filteredPosts && filteredPosts.length > 0 ? (
         <div className="grid grid-cols-1 items-start gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {posts.map((post) => (
+          {filteredPosts.map((post) => (
             <Link
               key={post.id}
               href={`/blog/${post.slug}`}
@@ -110,7 +201,22 @@ export default function BlogPage() {
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-white/30 bg-white/5 p-12 backdrop-blur-md">
-          <p className="text-xl text-white/80">No posts published yet</p>
+          <p className="text-xl text-white/80">
+            {searchQuery || selectedTag
+              ? "No posts found matching your filters"
+              : "No posts published yet"}
+          </p>
+          {(searchQuery || selectedTag) && (
+            <button
+              onClick={() => {
+                setSearchQuery("");
+                setSelectedTag(null);
+              }}
+              className="mt-4 text-blue-400 hover:text-blue-300"
+            >
+              Clear filters
+            </button>
+          )}
         </div>
       )}
     </div>
