@@ -118,6 +118,31 @@ model BlogImage {
   createdAt DateTime @default(now())
 }
 
+// Moments Gallery
+model GalleryItem {
+  id          String      @id @default(cuid())
+  title       String
+  description String?
+  caption     String?
+  mediaType   MediaType
+  image       Bytes?      // For images
+  imageType   String?     // For images
+  videoUrl    String?     // For YouTube embeds
+  tags        String      // Comma-separated tags
+  createdAt   DateTime    @default(now())
+}
+
+// Contact Messages
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String?  // Optional - can be anonymous
+  email     String
+  subject   String?
+  message   String   @db.Text
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
 // Enums structure for the tables
 enum StatusFlags {
   PLANNING
@@ -148,4 +173,9 @@ enum SourceCodeAvailibility {
 enum Role {
   USER
   ADMIN
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
 }
