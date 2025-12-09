@@ -154,7 +154,7 @@ export default function HomeComponent() {
           className="mb-6 max-w-7xl space-y-1 text-center text-base sm:text-lg md:text-2xl lg:text-2xl"
           style={{ fontFamily: "var(--font-kalam)" }}
         >
-          <p>CS Grad Student @ Western Michigan University</p>
+          <p>CS Grad Student @ Western Michigan University (Batch of 2026)</p>
           <p>TCS Alumni || Full Stack Developer</p>
           <p>Officer (Head Lead Developer) @ Developer Club WMU</p>
         </div>
@@ -190,7 +190,7 @@ export default function HomeComponent() {
           aria-label="Scroll to About section"
         >
           <div className="flex flex-col items-center gap-2">
-            <FaChevronDown className="h-8 w-8 text-white transition-all duration-300 group-hover:text-[var(--color-text-blue-light)]" />
+            <FaChevronDown className="group-hover:text-text-blue-light h-8 w-8 text-white transition-all duration-300" />
             <span
               className="text-sm opacity-0 transition-opacity duration-300 group-hover:opacity-100"
               style={{ fontFamily: "var(--font-kalam)" }}
@@ -241,7 +241,7 @@ export default function HomeComponent() {
               I'm a Master's student in Computer Science at Western Michigan
               University, specializing in systems development and architecture.
               My core expertise lies in building robust, scalable systems, from
-              backend infrastructure and database design to distributed systems
+              infrastructure to efficient business logic to distributed systems
               and performance optimization.
             </p>
 
@@ -250,29 +250,30 @@ export default function HomeComponent() {
               Artificial Intelligence and Machine Learning because modern
               problems sometimes demand intelligent, adaptive solutions. The key
               word? Sometimes. I believe in reaching for the right tool for the
-              job, whether that's a well-architected database, a clever
-              algorithm, a distributed system, or yes, when truly justified,
-              machine learning.
+              right job, whether that's a well architected database, a cheeky
+              clever algorithm, a distributed system, or yes, when truly
+              justified, machine learning.
             </p>
 
             <p className="text-justify indent-12">
-              My approach is grounded in asking "Okay but why?" before "how do
-              we implement it?", understanding the problem deeply before
-              choosing the solution. I build systems that are reliable,
-              scalable, and maintainable, using whatever technology genuinely
-              serves the goal rather than chasing what's trendy. I thrive in
-              environments that value thoughtful engineering over hype, where
-              teams solve real problems instead of collecting buzzwords. Whether
-              it's designing systems that scale, optimizing performance
-              bottlenecks, integrating intelligent features where they make
-              sense, or knowing when simpler is better, I'm drawn to work that
-              demands both technical rigor and critical thinking.
+              My approach is focused in asking "Okay but why?" before "how do we
+              implement it?", understanding the problem deeply before choosing
+              the solution. I build systems that are reliable, scalable, and
+              maintainable, using whatever technology fits to serves the goal
+              rather than chasing what's trendy. I thrive in environments that
+              value engineering over hype, where teams solve real problems
+              instead of collecting buzzwords. Whether it's designing systems
+              that scale, optimizing performance bottlenecks, integrating
+              intelligent features where they are actually required, or knowing
+              when simpler is better, I'm drawn to work that demands both
+              technical rigor and critical thinking.
             </p>
             <p className="text-justify indent-12">
-              If you're building systems that matter, want to discuss
-              architecture patterns, debate when AI actually makes sense, or
-              just appreciate the occasional sci-fi reference, let's connect.
-              Always open to new opportunities and conversations.
+              If you're building systems that are reliant, efficient and
+              dependable or want to discuss architecture design patterns, debate
+              when AI actually makes sense, or just appreciate the occasional
+              sci-fi reference, let's connect. Always open to new opportunities
+              and conversations.
             </p>
           </div>
 
@@ -289,7 +290,7 @@ export default function HomeComponent() {
             </h2>
 
             {/* Timeline Line - Hidden on mobile */}
-            <div className="absolute top-20 left-1/2 hidden h-full w-1 -translate-x-1/2 bg-gradient-to-b from-[var(--color-accent-primary)] to-[var(--color-accent-cyan)] md:block"></div>
+            <div className="from-accent-primary to-accent-cyan absolute top-20 left-1/2 hidden h-full w-1 -translate-x-1/2 bg-linear-to-b md:block"></div>
 
             {/* Timeline Events */}
             <div className="space-y-12">
@@ -302,7 +303,7 @@ export default function HomeComponent() {
                 >
                   {/* Timeline Card */}
                   <div
-                    className={`w-full rounded-lg bg-[var(--color-bg-secondary)] p-6 shadow-xl transition-all duration-300 hover:scale-105 hover:bg-[var(--color-bg-tertiary)] md:w-5/12 ${
+                    className={`bg-bg-secondary hover:bg-bg-tertiary w-full rounded-lg p-6 shadow-xl transition-all duration-300 hover:scale-105 md:w-5/12 ${
                       index % 2 === 0 ? "md:mr-auto" : "md:ml-auto"
                     }`}
                   >
@@ -345,7 +346,7 @@ export default function HomeComponent() {
                   </div>
 
                   {/* Timeline Dot - Hidden on mobile */}
-                  <div className="absolute left-1/2 hidden h-6 w-6 -translate-x-1/2 rounded-full border-4 border-[var(--color-portfolio-bg)] bg-[var(--color-accent-primary)] shadow-lg md:block"></div>
+                  <div className="border-portfolio-bg bg-accent-primary absolute left-1/2 hidden h-6 w-6 -translate-x-1/2 rounded-full border-4 shadow-lg md:block"></div>
                 </div>
               ))}
             </div>

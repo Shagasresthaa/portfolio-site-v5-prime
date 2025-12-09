@@ -1,6 +1,5 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -47,6 +46,7 @@ model User {
   email         String?   @unique
   emailVerified DateTime?
   image         String?
+  role          Role      @default(USER)
   accounts      Account[]
   sessions      Session[]
 }
@@ -74,10 +74,51 @@ model Project {
   techStacks             String
   projectUrl             String?
   liveUrl                String?
+  image                  Bytes?
+  imageType              String?
 }
 
-// Enmums structure for the tables
+model BlogPost {
+  id              String    @id @default(cuid())
+  title           String
+  slug            String    @unique
+  excerpt         String
+  content         String    @db.Text
+  coverImage      Bytes?
+  imageType       String?
+  published       Boolean   @default(false)
+  publishedAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  tags            String
+  metaTitle       String?
+  metaDescription String?
+  ogImage         String?
+  comments        Comment[]
 
+  @@index([slug])
+  @@index([published, publishedAt])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  postId    String
+  name      String?
+  content   String
+  createdAt DateTime @default(now())
+
+  post BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+}
+
+model BlogImage {
+  id        String   @id @default(cuid())
+  image     Bytes
+  imageType String
+  altText   String?
+  createdAt DateTime @default(now())
+}
+
+// Enums structure for the tables
 enum StatusFlags {
   PLANNING
   IN_PROGRESS
@@ -102,4 +143,9 @@ enum SourceCodeAvailibility {
   OPEN_SOURCE
   CLOSED_SOURCE
   UNDER_NDA
+}
+
+enum Role {
+  USER
+  ADMIN
 }

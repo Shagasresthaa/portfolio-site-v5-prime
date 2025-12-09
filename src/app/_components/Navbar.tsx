@@ -6,11 +6,11 @@ import { usePathname } from "next/navigation";
 import {
   FaHome,
   FaLaptopCode,
-  FaPenFancy,
+  FaRss,
   FaEnvelope,
   FaBars,
   FaTimes,
-  FaUserCircle,
+  FaImages,
 } from "react-icons/fa";
 
 export default function Navbar() {
@@ -30,9 +30,9 @@ export default function Navbar() {
   const navItems = [
     { href: "/", icon: FaHome, label: "Home" },
     { href: "/projects", icon: FaLaptopCode, label: "Projects" },
-    { href: "/blog", icon: FaPenFancy, label: "Blog" },
+    { href: "/blog", icon: FaRss, label: "Blog" },
+    { href: "/moments", icon: FaImages, label: "Moments" },
     { href: "/contact", icon: FaEnvelope, label: "Contact" },
-    { href: "/login", icon: FaUserCircle, label: "Login" },
   ];
 
   const handleSmoothScroll = (
@@ -57,9 +57,7 @@ export default function Navbar() {
       {/* Desktop Navigation - positioned to the right with gap */}
       <div
         className={`hidden items-center gap-4 transition-all duration-300 md:flex ${
-          isScrolled
-            ? "rounded-full bg-[var(--color-portfolio-bg)] px-6 py-3 shadow-lg"
-            : ""
+          isScrolled ? "bg-portfolio-bg rounded-full px-6 py-3 shadow-lg" : ""
         }`}
         style={{ marginRight: "1.5rem" }}
       >
@@ -74,11 +72,11 @@ export default function Navbar() {
               onClick={(e) => handleSmoothScroll(e, item.href)}
               className={`group flex items-center gap-2 rounded-full px-4 py-2 transition-all duration-300 ${
                 isActive
-                  ? "bg-[var(--color-accent-primary)] text-white"
-                  : "bg-[var(--color-bg-secondary)] text-[var(--color-text-secondary)] hover:bg-[var(--color-accent-primary)] hover:text-white"
+                  ? "bg-accent-primary text-white"
+                  : "bg-bg-secondary text-text-secondary hover:bg-accent-primary hover:text-white"
               }`}
             >
-              <Icon className="h-5 w-5 flex-shrink-0" />
+              <Icon className="h-5 w-5 shrink-0" />
               <span
                 className={`max-w-0 overflow-hidden whitespace-nowrap transition-all duration-300 group-hover:max-w-[100px] ${
                   isActive ? "max-w-[100px]" : ""
@@ -94,7 +92,7 @@ export default function Navbar() {
       {/* Mobile Hamburger Button */}
       <button
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        className="rounded-full bg-[var(--color-bg-secondary)] p-3 text-white transition-all duration-300 hover:bg-[var(--color-accent-primary)] md:hidden"
+        className="bg-bg-secondary hover:bg-accent-primary rounded-full p-3 text-white transition-all duration-300 md:hidden"
         aria-label="Toggle menu"
       >
         {isMobileMenuOpen ? (
@@ -106,7 +104,7 @@ export default function Navbar() {
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="fixed top-20 right-4 z-40 w-auto rounded-2xl bg-[var(--color-portfolio-bg)] p-4 shadow-2xl md:hidden">
+        <div className="bg-portfolio-bg fixed top-20 right-4 z-40 w-auto rounded-2xl p-4 shadow-2xl md:hidden">
           <div className="flex flex-col gap-3">
             {navItems.map((item) => {
               const Icon = item.icon;
@@ -119,11 +117,11 @@ export default function Navbar() {
                   onClick={(e) => handleSmoothScroll(e, item.href)}
                   className={`flex items-center gap-3 rounded-full px-5 py-3 text-base whitespace-nowrap transition-all duration-300 ${
                     isActive
-                      ? "bg-[var(--color-accent-primary)] text-white"
-                      : "bg-[var(--color-bg-secondary)] text-[var(--color-text-secondary)] hover:bg-[var(--color-accent-primary)] hover:text-white"
+                      ? "bg-accent-primary text-white"
+                      : "bg-bg-secondary text-text-secondary hover:bg-accent-primary hover:text-white"
                   }`}
                 >
-                  <Icon className="h-5 w-5 flex-shrink-0" />
+                  <Icon className="h-5 w-5 shrink-0" />
                   <span>{item.label}</span>
                 </Link>
               );
