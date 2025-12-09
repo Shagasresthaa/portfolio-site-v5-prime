@@ -118,7 +118,7 @@ export default function ProjectsPage() {
                     <img
                       src={`/api/projects/${project.id}/image`}
                       alt={project.name}
-                      className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-105"
+                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                     />
                   </div>
                 )}
@@ -148,20 +148,20 @@ export default function ProjectsPage() {
                   {/* Timeline & Affiliation */}
                   <div className="mb-4 space-y-2 text-sm text-white/70">
                     <div className="flex items-center gap-2">
-                      <FaCalendar className="flex-shrink-0" />
+                      <FaCalendar className="shrink-0" />
                       <span>
                         {formatDate(project.startDate)} -{" "}
                         {formatDate(project.endDate)}
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <FaClock className="flex-shrink-0" />
+                      <FaClock className="shrink-0" />
                       <span>
                         {calculateDuration(project.startDate, project.endDate)}
                       </span>
                     </div>
                     <div className="flex items-start gap-2">
-                      <span className="flex-shrink-0">🏢</span>
+                      <span className="shrink-0">🏢</span>
                       <span>
                         {project.affiliation} (
                         {project.affiliationType.replace(/_/g, " ")})
@@ -170,7 +170,7 @@ export default function ProjectsPage() {
                   </div>
 
                   {/* Description */}
-                  <div className="mb-4 flex-grow">
+                  <div className="mb-4 grow">
                     <p
                       className="text-white/80"
                       style={{ fontFamily: "var(--font-kalam)" }}

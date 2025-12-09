@@ -7,7 +7,7 @@ export default function BackgroundComponent() {
         <div className="flex-1 bg-[url('/assets/telescope.svg')] bg-contain bg-left bg-no-repeat" />
 
         {/* Laptop - bottom half with rotation */}
-        <div className="flex-1 origin-center scale-[0.65] -rotate-[18deg] bg-[url('/assets/laptop.svg')] bg-contain bg-right bg-no-repeat" />
+        <div className="flex-1 origin-center scale-[0.65] -rotate-18 bg-[url('/assets/laptop.svg')] bg-contain bg-right bg-no-repeat" />
       </div>
 
       {/* Right side with astronaut - visible on all screens */}

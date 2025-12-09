@@ -154,7 +154,7 @@ export default function HomeComponent() {
           className="mb-6 max-w-7xl space-y-1 text-center text-base sm:text-lg md:text-2xl lg:text-2xl"
           style={{ fontFamily: "var(--font-kalam)" }}
         >
-          <p>CS Grad Student @ Western Michigan University</p>
+          <p>CS Grad Student @ Western Michigan University (Batch of 2026)</p>
           <p>TCS Alumni || Full Stack Developer</p>
           <p>Officer (Head Lead Developer) @ Developer Club WMU</p>
         </div>
@@ -190,7 +190,7 @@ export default function HomeComponent() {
           aria-label="Scroll to About section"
         >
           <div className="flex flex-col items-center gap-2">
-            <FaChevronDown className="h-8 w-8 text-white transition-all duration-300 group-hover:text-[var(--color-text-blue-light)]" />
+            <FaChevronDown className="group-hover:text-text-blue-light h-8 w-8 text-white transition-all duration-300" />
             <span
               className="text-sm opacity-0 transition-opacity duration-300 group-hover:opacity-100"
               style={{ fontFamily: "var(--font-kalam)" }}
@@ -290,7 +290,7 @@ export default function HomeComponent() {
             </h2>
 
             {/* Timeline Line - Hidden on mobile */}
-            <div className="absolute top-20 left-1/2 hidden h-full w-1 -translate-x-1/2 bg-gradient-to-b from-[var(--color-accent-primary)] to-[var(--color-accent-cyan)] md:block"></div>
+            <div className="from-accent-primary to-accent-cyan absolute top-20 left-1/2 hidden h-full w-1 -translate-x-1/2 bg-linear-to-b md:block"></div>
 
             {/* Timeline Events */}
             <div className="space-y-12">
@@ -303,7 +303,7 @@ export default function HomeComponent() {
                 >
                   {/* Timeline Card */}
                   <div
-                    className={`w-full rounded-lg bg-[var(--color-bg-secondary)] p-6 shadow-xl transition-all duration-300 hover:scale-105 hover:bg-[var(--color-bg-tertiary)] md:w-5/12 ${
+                    className={`bg-bg-secondary hover:bg-bg-tertiary w-full rounded-lg p-6 shadow-xl transition-all duration-300 hover:scale-105 md:w-5/12 ${
                       index % 2 === 0 ? "md:mr-auto" : "md:ml-auto"
                     }`}
                   >
@@ -346,7 +346,7 @@ export default function HomeComponent() {
                   </div>
 
                   {/* Timeline Dot - Hidden on mobile */}
-                  <div className="absolute left-1/2 hidden h-6 w-6 -translate-x-1/2 rounded-full border-4 border-[var(--color-portfolio-bg)] bg-[var(--color-accent-primary)] shadow-lg md:block"></div>
+                  <div className="border-portfolio-bg bg-accent-primary absolute left-1/2 hidden h-6 w-6 -translate-x-1/2 rounded-full border-4 shadow-lg md:block"></div>
                 </div>
               ))}
             </div>
