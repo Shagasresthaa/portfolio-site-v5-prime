@@ -1,0 +1,37 @@
+services:
+  app:
+    platform: "linux/amd64"
+    image: sresthaa17/portfolio-site-t3-v5-prod:latest
+    container_name: portfolio-site-v5-prime-prod
+    restart: unless-stopped
+    working_dir: /app
+    ports:
+      - "3000:3000"
+    networks:
+      - gridprime
+    secrets:
+      - database_url
+      - auth_secret
+      - auth_trust_host
+      - nextauth_url
+      - discord_id
+      - discord_secret
+
+secrets:
+  database_url:
+    file: ./secrets/database_url
+  auth_secret:
+    file: ./secrets/auth_secret
+  auth_trust_host:
+    file: ./secrets/auth_trust_host
+  nextauth_url:
+    file: ./secrets/nextauth_url
+  discord_id:
+    file: ./secrets/discord_id
+  discord_secret:
+    file: ./secrets/discord_secret
+
+networks:
+  gridprime:
+    external: true
+    name: gridprime
