@@ -9,6 +9,8 @@ services:
       - "3000:3000"
     networks:
       - gridprime
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     secrets:
       - database_url
       - auth_secret
