@@ -13,25 +13,44 @@ export default function MomentsPage() {
 
   const { data, isLoading } = api.gallery.getAll.useQuery({ page, limit: 12 });
 
-  // Calculate max height of all cards when they first load
+  // Calculate max height of all cards when they first load (desktop only)
   useEffect(() => {
-    if (data?.items && data.items.length > 0 && cardMinHeight === 0) {
-      setTimeout(() => {
-        let maxHeight = 0;
-        cardRefs.current.forEach((element) => {
-          if (element) {
-            const height = element.offsetHeight;
-            if (height > maxHeight) {
-              maxHeight = height;
+    const calculateHeights = () => {
+      // Only calculate on desktop (md breakpoint = 768px)
+      if (typeof window !== "undefined" && window.innerWidth >= 768) {
+        if (data?.items && data.items.length > 0) {
+          setTimeout(() => {
+            let maxHeight = 0;
+            cardRefs.current.forEach((element) => {
+              if (element) {
+                const height = element.offsetHeight;
+                if (height > maxHeight) {
+                  maxHeight = height;
+                }
+              }
+            });
+            if (maxHeight > 0) {
+              setCardMinHeight(maxHeight);
             }
-          }
-        });
-        if (maxHeight > 0) {
-          setCardMinHeight(maxHeight);
+          }, 100);
         }
-      }, 100);
-    }
-  }, [data?.items, cardMinHeight]);
+      } else {
+        // Reset height on mobile
+        setCardMinHeight(0);
+      }
+    };
+
+    calculateHeights();
+
+    // Recalculate on resize (e.g., orientation change)
+    const handleResize = () => {
+      setCardMinHeight(0); // Reset first
+      setTimeout(calculateHeights, 150);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [data?.items]);
 
   // Get all unique tags from current page
   const allTags = useMemo(() => {

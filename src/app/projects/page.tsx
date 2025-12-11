@@ -22,26 +22,44 @@ export default function ProjectsPage() {
   const [cardMinHeight, setCardMinHeight] = useState<number>(0);
   const cardRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
-  // Calculate max height of all cards when they first load
+  // Calculate max height of all cards when they first load (desktop only)
   useEffect(() => {
-    if (projects && projects.length > 0 && cardMinHeight === 0) {
-      // Give cards time to render
-      setTimeout(() => {
-        let maxHeight = 0;
-        cardRefs.current.forEach((element) => {
-          if (element) {
-            const height = element.offsetHeight;
-            if (height > maxHeight) {
-              maxHeight = height;
+    const calculateHeights = () => {
+      // Only calculate on desktop (md breakpoint = 768px)
+      if (typeof window !== "undefined" && window.innerWidth >= 768) {
+        if (projects && projects.length > 0) {
+          setTimeout(() => {
+            let maxHeight = 0;
+            cardRefs.current.forEach((element) => {
+              if (element) {
+                const height = element.offsetHeight;
+                if (height > maxHeight) {
+                  maxHeight = height;
+                }
+              }
+            });
+            if (maxHeight > 0) {
+              setCardMinHeight(maxHeight);
             }
-          }
-        });
-        if (maxHeight > 0) {
-          setCardMinHeight(maxHeight);
+          }, 100);
         }
-      }, 100);
-    }
-  }, [projects, cardMinHeight]);
+      } else {
+        // Reset height on mobile
+        setCardMinHeight(0);
+      }
+    };
+
+    calculateHeights();
+
+    // Recalculate on resize (e.g., orientation change)
+    const handleResize = () => {
+      setCardMinHeight(0); // Reset first
+      setTimeout(calculateHeights, 150);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [projects]);
 
   const toggleExpand = (projectId: string) => {
     setExpandedProjects((prev) => {
