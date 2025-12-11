@@ -7,7 +7,7 @@ import Navbar from "./_components/Navbar";
 import { Footer } from "./_components/Footer";
 
 export const metadata: Metadata = {
-  title: "Shaga Sresthaa - Portfolio",
+  title: "Shaga Sresthaa",
   description:
     "Graduate Student @ Western Michigan University | Full Stack Developer | Astronomy Enthusiast",
   icons: [{ rel: "icon", url: "/favicon.ico" }],

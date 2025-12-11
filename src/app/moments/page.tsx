@@ -195,56 +195,63 @@ export default function MomentsPage() {
                 </div>
 
                 {/* Content */}
-                <div className="p-4">
-                  <h2
-                    className="mb-2 text-xl font-bold text-white"
-                    style={{ fontFamily: "var(--font-salsa)" }}
-                  >
-                    {item.title}
-                  </h2>
+                <div className="flex flex-1 flex-col p-4">
+                  {/* Title and Description - grows to fill space */}
+                  <div className="grow">
+                    <h2
+                      className="mb-2 text-xl font-bold text-white"
+                      style={{ fontFamily: "var(--font-salsa)" }}
+                    >
+                      {item.title}
+                    </h2>
 
-                  {item.description && (
-                    <div className="mb-3">
-                      <p
-                        className={`text-white/80 ${
-                          !isExpanded(item.id) && item.description.length > 150
-                            ? "line-clamp-3"
-                            : ""
-                        }`}
-                        style={{ fontFamily: "var(--font-kalam)" }}
-                      >
-                        {item.description}
+                    {item.description && (
+                      <div className="mb-3">
+                        <p
+                          className={`text-white/80 ${
+                            !isExpanded(item.id) &&
+                            item.description.length > 150
+                              ? "line-clamp-3"
+                              : ""
+                          }`}
+                          style={{ fontFamily: "var(--font-kalam)" }}
+                        >
+                          {item.description}
+                        </p>
+                        {item.description.length > 150 && (
+                          <button
+                            onClick={() => toggleExpanded(item.id)}
+                            className="mt-1 text-sm text-blue-400 transition hover:text-blue-300"
+                          >
+                            {isExpanded(item.id) ? "Read less" : "Read more"}
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Caption and Tags - Always at bottom */}
+                  <div className="mt-auto space-y-3 pt-3">
+                    {item.caption && (
+                      <p className="text-sm text-white/60 italic">
+                        "{item.caption}"
                       </p>
-                      {item.description.length > 150 && (
-                        <button
-                          onClick={() => toggleExpanded(item.id)}
-                          className="mt-1 text-sm text-blue-400 transition hover:text-blue-300"
-                        >
-                          {isExpanded(item.id) ? "Read less" : "Read more"}
-                        </button>
-                      )}
-                    </div>
-                  )}
+                    )}
 
-                  {item.caption && (
-                    <p className="mb-3 text-sm text-white/60 italic">
-                      "{item.caption}"
-                    </p>
-                  )}
-
-                  {/* Tags */}
-                  {item.tags && (
-                    <div className="flex flex-wrap gap-2">
-                      {item.tags.split(",").map((tag, idx) => (
-                        <span
-                          key={idx}
-                          className="rounded-full bg-white/10 px-2 py-1 text-xs text-white"
-                        >
-                          {tag.trim()}
-                        </span>
-                      ))}
-                    </div>
-                  )}
+                    {/* Tags */}
+                    {item.tags && (
+                      <div className="flex flex-wrap gap-2">
+                        {item.tags.split(",").map((tag, idx) => (
+                          <span
+                            key={idx}
+                            className="rounded-full bg-white/10 px-2 py-1 text-xs text-white"
+                          >
+                            {tag.trim()}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}

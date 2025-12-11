@@ -11,7 +11,7 @@ import {
   FaCalendar,
   FaClock,
 } from "react-icons/fa";
-import { StatusFlags } from "@prisma/client";
+import { StatusFlags, SourceCodeAvailibility } from "@prisma/client";
 
 export default function ProjectsPage() {
   const { data: projects, isLoading } =
@@ -87,6 +87,32 @@ export default function ProjectsPage() {
         return "bg-red-500/30 text-white";
       default:
         return "bg-gray-500/30 text-white";
+    }
+  };
+
+  const getSourceCodeColor = (availability: SourceCodeAvailibility) => {
+    switch (availability) {
+      case SourceCodeAvailibility.OPEN_SOURCE:
+        return "bg-green-500/30 text-white";
+      case SourceCodeAvailibility.UNDER_NDA:
+        return "bg-orange-500/30 text-white";
+      case SourceCodeAvailibility.CLOSED_SOURCE:
+        return "bg-gray-500/30 text-white";
+      default:
+        return "bg-gray-500/30 text-white";
+    }
+  };
+
+  const getSourceCodeLabel = (availability: SourceCodeAvailibility) => {
+    switch (availability) {
+      case SourceCodeAvailibility.OPEN_SOURCE:
+        return "Open Source";
+      case SourceCodeAvailibility.UNDER_NDA:
+        return "Under NDA";
+      case SourceCodeAvailibility.CLOSED_SOURCE:
+        return "Closed Source";
+      default:
+        return "Unknown";
     }
   };
 
@@ -199,7 +225,7 @@ export default function ProjectsPage() {
               >
                 {/* Project Image */}
                 {project.imageType && (
-                  <div className="relative h-48 w-full overflow-hidden bg-white/5">
+                  <div className="relative h-60 w-full overflow-hidden bg-white/5">
                     <img
                       src={`/api/projects/${project.id}/image`}
                       alt={project.name}
@@ -209,7 +235,7 @@ export default function ProjectsPage() {
                 )}
 
                 {/* Card Content */}
-                <div className="flex flex-col p-6">
+                <div className="flex flex-1 flex-col p-6">
                   {/* Header */}
                   <div className="mb-4">
                     <h2
@@ -226,6 +252,11 @@ export default function ProjectsPage() {
                       </span>
                       <span className="rounded-full bg-purple-500/30 px-3 py-1 text-xs text-white">
                         {project.collabMode}
+                      </span>
+                      <span
+                        className={`rounded-full px-3 py-1 text-xs ${getSourceCodeColor(project.sourceCodeAvailibility)}`}
+                      >
+                        {getSourceCodeLabel(project.sourceCodeAvailibility)}
                       </span>
                     </div>
                   </div>
@@ -268,7 +299,7 @@ export default function ProjectsPage() {
                   </div>
 
                   {/* Description */}
-                  <div className="mb-4 grow">
+                  <div className="grow">
                     <p
                       className="text-white/80"
                       style={{ fontFamily: "var(--font-kalam)" }}
@@ -304,54 +335,57 @@ export default function ProjectsPage() {
                     )}
                   </div>
 
-                  {/* Tech Stack */}
-                  <div className="mb-4">
-                    <p className="mb-2 text-sm font-semibold text-white/60">
-                      Tech Stack:
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {project.techStacks.split(",").map((tech, idx) => (
-                        <span
-                          key={idx}
-                          className="rounded-lg bg-white/10 px-2 py-1 text-xs text-white"
-                        >
-                          {tech.trim()}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Links */}
-                  <div className="flex gap-3">
-                    {project.sourceCodeAvailibility === "OPEN_SOURCE" &&
-                    project.projectUrl ? (
-                      <a
-                        href={project.projectUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 rounded-lg bg-gray-700/50 px-4 py-2 text-sm text-white transition hover:bg-gray-700/70"
-                      >
-                        <FaGithub />
-                        Code
-                      </a>
-                    ) : project.sourceCodeAvailibility === "UNDER_NDA" ? (
-                      <div className="flex items-center gap-2 rounded-lg bg-gray-700/30 px-4 py-2 text-sm text-white/50">
-                        <FaLock />
-                        NDA
+                  {/* Tech Stack & Links - Always at bottom */}
+                  <div className="mt-auto space-y-4 pt-4">
+                    {/* Tech Stack */}
+                    <div>
+                      <p className="mb-2 text-sm font-semibold text-white/60">
+                        Tech Stack:
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {project.techStacks.split(",").map((tech, idx) => (
+                          <span
+                            key={idx}
+                            className="rounded-lg bg-white/10 px-2 py-1 text-xs text-white"
+                          >
+                            {tech.trim()}
+                          </span>
+                        ))}
                       </div>
-                    ) : null}
+                    </div>
 
-                    {project.liveUrl && (
-                      <a
-                        href={project.liveUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 rounded-lg bg-blue-600/50 px-4 py-2 text-sm text-white transition hover:bg-blue-600/70"
-                      >
-                        <FaExternalLinkAlt />
-                        Live Demo
-                      </a>
-                    )}
+                    {/* Links */}
+                    <div className="flex gap-3">
+                      {project.sourceCodeAvailibility === "OPEN_SOURCE" &&
+                      project.projectUrl ? (
+                        <a
+                          href={project.projectUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 rounded-lg bg-gray-700/50 px-4 py-2 text-sm text-white transition hover:bg-gray-700/70"
+                        >
+                          <FaGithub />
+                          Code
+                        </a>
+                      ) : project.sourceCodeAvailibility === "UNDER_NDA" ? (
+                        <div className="flex items-center gap-2 rounded-lg bg-gray-700/30 px-4 py-2 text-sm text-white/50">
+                          <FaLock />
+                          NDA
+                        </div>
+                      ) : null}
+
+                      {project.liveUrl && (
+                        <a
+                          href={project.liveUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 rounded-lg bg-blue-600/50 px-4 py-2 text-sm text-white transition hover:bg-blue-600/70"
+                        >
+                          <FaExternalLinkAlt />
+                          Live Demo
+                        </a>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
