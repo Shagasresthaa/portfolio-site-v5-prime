@@ -1,15 +1,37 @@
 "use client";
 
 import { api } from "@/trpc/react";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { FaTags, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 export default function MomentsPage() {
   const [page, setPage] = useState(1);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
+  const [cardMinHeight, setCardMinHeight] = useState<number>(0);
+  const cardRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
   const { data, isLoading } = api.gallery.getAll.useQuery({ page, limit: 12 });
+
+  // Calculate max height of all cards when they first load
+  useEffect(() => {
+    if (data?.items && data.items.length > 0 && cardMinHeight === 0) {
+      setTimeout(() => {
+        let maxHeight = 0;
+        cardRefs.current.forEach((element) => {
+          if (element) {
+            const height = element.offsetHeight;
+            if (height > maxHeight) {
+              maxHeight = height;
+            }
+          }
+        });
+        if (maxHeight > 0) {
+          setCardMinHeight(maxHeight);
+        }
+      }, 100);
+    }
+  }, [data?.items, cardMinHeight]);
 
   // Get all unique tags from current page
   const allTags = useMemo(() => {
@@ -124,10 +146,18 @@ export default function MomentsPage() {
             {filteredItems.map((item) => (
               <div
                 key={item.id}
-                className="flex min-h-[400px] flex-col overflow-hidden rounded-2xl border border-white/20 bg-white/5 backdrop-blur-md transition-all duration-300 hover:bg-white/10"
+                ref={(el) => {
+                  if (el) cardRefs.current.set(item.id, el);
+                }}
+                style={
+                  cardMinHeight > 0
+                    ? { minHeight: `${cardMinHeight}px` }
+                    : undefined
+                }
+                className="flex flex-col rounded-2xl border border-white/20 bg-white/5 backdrop-blur-md transition-all duration-300 hover:bg-white/10"
               >
                 {/* Media - Fixed aspect ratio container */}
-                <div className="relative aspect-video w-full bg-black/20">
+                <div className="relative aspect-video w-full overflow-hidden rounded-t-2xl bg-black/20">
                   {item.mediaType === "IMAGE" && item.imageType ? (
                     <img
                       src={`/api/gallery/${item.id}/image`}

@@ -1,7 +1,7 @@
 "use client";
 
 import { api } from "@/trpc/react";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   FaGithub,
   FaExternalLinkAlt,
@@ -19,6 +19,29 @@ export default function ProjectsPage() {
   const [expandedProjects, setExpandedProjects] = useState<Set<string>>(
     new Set(),
   );
+  const [cardMinHeight, setCardMinHeight] = useState<number>(0);
+  const cardRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+
+  // Calculate max height of all cards when they first load
+  useEffect(() => {
+    if (projects && projects.length > 0 && cardMinHeight === 0) {
+      // Give cards time to render
+      setTimeout(() => {
+        let maxHeight = 0;
+        cardRefs.current.forEach((element) => {
+          if (element) {
+            const height = element.offsetHeight;
+            if (height > maxHeight) {
+              maxHeight = height;
+            }
+          }
+        });
+        if (maxHeight > 0) {
+          setCardMinHeight(maxHeight);
+        }
+      }, 100);
+    }
+  }, [projects, cardMinHeight]);
 
   const toggleExpand = (projectId: string) => {
     setExpandedProjects((prev) => {
@@ -146,7 +169,15 @@ export default function ProjectsPage() {
             return (
               <div
                 key={project.id}
-                className="group flex min-h-[600px] flex-col overflow-hidden rounded-2xl border border-white/20 bg-white/5 backdrop-blur-md transition-all duration-300 hover:bg-white/10"
+                ref={(el) => {
+                  if (el) cardRefs.current.set(project.id, el);
+                }}
+                style={
+                  cardMinHeight > 0
+                    ? { minHeight: `${cardMinHeight}px` }
+                    : undefined
+                }
+                className="group flex flex-col overflow-hidden rounded-2xl border border-white/20 bg-white/5 backdrop-blur-md transition-all duration-300 hover:bg-white/10"
               >
                 {/* Project Image */}
                 {project.imageType && (
