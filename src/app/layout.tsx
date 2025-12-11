@@ -4,6 +4,7 @@ import { Geist } from "next/font/google";
 import { TRPCReactProvider } from "@/trpc/react";
 import BackgroundComponent from "./_components/BackgroundComponent";
 import Navbar from "./_components/Navbar";
+import { Footer } from "./_components/Footer";
 
 export const metadata: Metadata = {
   title: "Shaga Sresthaa - Portfolio",
@@ -36,6 +37,7 @@ export default function RootLayout({
         <div className="relative z-10">
           <TRPCReactProvider>{children}</TRPCReactProvider>
         </div>
+        <Footer />
       </body>
     </html>
   );

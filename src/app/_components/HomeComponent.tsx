@@ -43,7 +43,7 @@ export default function HomeComponent() {
       label: "Awards",
     },
     {
-      href: "https://steamcommunity.com/id/maverick_017/",
+      href: "https://steamcommunity.com/id/SentinelNS_05/",
       icon: <FaSteam className="h-8 w-8" />,
       hoverColor: "hover:text-blue-600",
       label: "Steam",

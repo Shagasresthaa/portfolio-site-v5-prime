@@ -7,6 +7,7 @@ import { FaTags, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 export default function MomentsPage() {
   const [page, setPage] = useState(1);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
 
   const { data, isLoading } = api.gallery.getAll.useQuery({ page, limit: 12 });
 
@@ -45,6 +46,20 @@ export default function MomentsPage() {
     const match = url.match(regExp);
     return match?.[2]?.length === 11 ? match[2] : null;
   };
+
+  const toggleExpanded = (itemId: string) => {
+    setExpandedItems((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(itemId)) {
+        newSet.delete(itemId);
+      } else {
+        newSet.add(itemId);
+      }
+      return newSet;
+    });
+  };
+
+  const isExpanded = (itemId: string) => expandedItems.has(itemId);
 
   if (isLoading) {
     return (
@@ -111,24 +126,24 @@ export default function MomentsPage() {
                 key={item.id}
                 className="mb-6 break-inside-avoid overflow-hidden rounded-2xl border border-white/20 bg-white/5 backdrop-blur-md transition-all duration-300 hover:bg-white/10"
               >
-                {/* Media */}
-                {item.mediaType === "IMAGE" && item.imageType ? (
-                  <img
-                    src={`/api/gallery/${item.id}/image`}
-                    alt={item.title}
-                    className="w-full object-cover"
-                  />
-                ) : item.mediaType === "VIDEO" && item.videoUrl ? (
-                  <div className="relative aspect-video w-full">
+                {/* Media - Fixed aspect ratio container */}
+                <div className="relative aspect-video w-full bg-black/20">
+                  {item.mediaType === "IMAGE" && item.imageType ? (
+                    <img
+                      src={`/api/gallery/${item.id}/image`}
+                      alt={item.title}
+                      className="absolute inset-0 h-full w-full object-cover"
+                    />
+                  ) : item.mediaType === "VIDEO" && item.videoUrl ? (
                     <iframe
                       src={`https://www.youtube.com/embed/${getYouTubeId(item.videoUrl)}`}
                       title={item.title}
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                       allowFullScreen
-                      className="h-full w-full"
+                      className="absolute inset-0 h-full w-full"
                     />
-                  </div>
-                ) : null}
+                  ) : null}
+                </div>
 
                 {/* Content */}
                 <div className="p-4">
@@ -140,12 +155,26 @@ export default function MomentsPage() {
                   </h2>
 
                   {item.description && (
-                    <p
-                      className="mb-3 text-white/80"
-                      style={{ fontFamily: "var(--font-kalam)" }}
-                    >
-                      {item.description}
-                    </p>
+                    <div className="mb-3">
+                      <p
+                        className={`text-white/80 ${
+                          !isExpanded(item.id) && item.description.length > 150
+                            ? "line-clamp-3"
+                            : ""
+                        }`}
+                        style={{ fontFamily: "var(--font-kalam)" }}
+                      >
+                        {item.description}
+                      </p>
+                      {item.description.length > 150 && (
+                        <button
+                          onClick={() => toggleExpanded(item.id)}
+                          className="mt-1 text-sm text-blue-400 transition hover:text-blue-300"
+                        >
+                          {isExpanded(item.id) ? "Read less" : "Read more"}
+                        </button>
+                      )}
+                    </div>
                   )}
 
                   {item.caption && (
