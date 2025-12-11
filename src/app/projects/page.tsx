@@ -146,7 +146,7 @@ export default function ProjectsPage() {
             return (
               <div
                 key={project.id}
-                className="group flex flex-col overflow-hidden rounded-2xl border border-white/20 bg-white/5 backdrop-blur-md transition-all duration-300 hover:bg-white/10"
+                className="group flex min-h-[600px] flex-col overflow-hidden rounded-2xl border border-white/20 bg-white/5 backdrop-blur-md transition-all duration-300 hover:bg-white/10"
               >
                 {/* Project Image */}
                 {project.imageType && (

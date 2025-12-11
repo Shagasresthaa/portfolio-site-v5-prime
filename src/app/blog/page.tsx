@@ -131,7 +131,7 @@ export default function BlogPage() {
             <Link
               key={post.id}
               href={`/blog/${post.slug}`}
-              className="group flex flex-col overflow-hidden rounded-2xl border border-white/20 bg-white/5 backdrop-blur-md transition-all duration-300 hover:scale-105 hover:bg-white/10"
+              className="group flex min-h-[500px] flex-col overflow-hidden rounded-2xl border border-white/20 bg-white/5 backdrop-blur-md transition-all duration-300 hover:scale-105 hover:bg-white/10"
             >
               {/* Cover Image */}
               {post.imageType && (

@@ -117,14 +117,14 @@ export default function MomentsPage() {
         </div>
       )}
 
-      {/* Masonry Grid */}
+      {/* Grid Layout */}
       {filteredItems && filteredItems.length > 0 ? (
         <>
-          <div className="columns-1 gap-6 md:columns-2 lg:columns-3">
+          <div className="grid grid-cols-1 items-start gap-6 md:grid-cols-2 lg:grid-cols-3">
             {filteredItems.map((item) => (
               <div
                 key={item.id}
-                className="mb-6 break-inside-avoid overflow-hidden rounded-2xl border border-white/20 bg-white/5 backdrop-blur-md transition-all duration-300 hover:bg-white/10"
+                className="flex min-h-[400px] flex-col overflow-hidden rounded-2xl border border-white/20 bg-white/5 backdrop-blur-md transition-all duration-300 hover:bg-white/10"
               >
                 {/* Media - Fixed aspect ratio container */}
                 <div className="relative aspect-video w-full bg-black/20">
