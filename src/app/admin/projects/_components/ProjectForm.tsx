@@ -16,7 +16,7 @@ interface Project {
   longDesc: string | null;
   statusFlag: StatusFlags;
   startDate: Date;
-  endDate: Date;
+  endDate: Date | null;
   collabMode: CollabModes;
   affiliation: string;
   affiliationType: AffiliationTypes;
@@ -40,7 +40,7 @@ export interface ProjectFormData {
   longDesc?: string;
   statusFlag: StatusFlags;
   startDate: Date;
-  endDate: Date;
+  endDate: Date | null;
   collabMode: CollabModes;
   affiliation: string;
   affiliationType: AffiliationTypes;
@@ -63,7 +63,7 @@ export function ProjectForm({
     longDesc: initialData?.longDesc ?? "",
     statusFlag: initialData?.statusFlag ?? StatusFlags.PLANNING,
     startDate: initialData?.startDate ?? new Date(),
-    endDate: initialData?.endDate ?? new Date(),
+    endDate: initialData?.endDate ?? null,
     collabMode: initialData?.collabMode ?? CollabModes.SOLO,
     affiliation: initialData?.affiliation ?? "",
     affiliationType:
@@ -78,6 +78,12 @@ export function ProjectForm({
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const hasExistingImage = initialData?.imageType; // Check if project has an image
 
+  // Determine if end date should be shown and required based on status
+  const shouldShowEndDate = formData.statusFlag !== StatusFlags.PLANNING;
+  const isEndDateRequired =
+    formData.statusFlag === StatusFlags.COMPLETED ||
+    formData.statusFlag === StatusFlags.ARCHIVED;
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit(formData);
@@ -89,11 +95,26 @@ export function ProjectForm({
     >,
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    // If status is changing to PLANNING, clear the end date
+    if (name === "statusFlag" && value === StatusFlags.PLANNING) {
+      setFormData((prev) => ({ ...prev, [name]: value, endDate: null }));
+    }
+    // If status is changing to IN_PROGRESS from something else, clear end date (will show as "Present")
+    else if (name === "statusFlag" && value === StatusFlags.IN_PROGRESS) {
+      setFormData((prev) => ({ ...prev, [name]: value, endDate: null }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleDateChange = (name: "startDate" | "endDate", value: string) => {
-    setFormData((prev) => ({ ...prev, [name]: new Date(value) }));
+    if (name === "endDate" && !value) {
+      // Allow clearing the end date
+      setFormData((prev) => ({ ...prev, [name]: null }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: new Date(value) }));
+    }
   };
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -239,18 +260,31 @@ export function ProjectForm({
             className="w-full rounded border border-white/30 bg-white/10 p-3 text-white focus:border-blue-400 focus:outline-none"
           />
         </div>
-        <div>
-          <label className="mb-2 block font-semibold text-white">
-            End Date *
-          </label>
-          <input
-            type="date"
-            value={formData.endDate.toISOString().split("T")[0]}
-            onChange={(e) => handleDateChange("endDate", e.target.value)}
-            required
-            className="w-full rounded border border-white/30 bg-white/10 p-3 text-white focus:border-blue-400 focus:outline-none"
-          />
-        </div>
+        {shouldShowEndDate && (
+          <div>
+            <label className="mb-2 block font-semibold text-white">
+              End Date {isEndDateRequired && "*"}
+            </label>
+            <input
+              type="date"
+              value={
+                formData.endDate
+                  ? formData.endDate.toISOString().split("T")[0]
+                  : ""
+              }
+              onChange={(e) => handleDateChange("endDate", e.target.value)}
+              required={isEndDateRequired}
+              className="w-full rounded border border-white/30 bg-white/10 p-3 text-white focus:border-blue-400 focus:outline-none"
+            />
+            <p className="mt-1 text-sm text-white/60">
+              {formData.statusFlag === StatusFlags.IN_PROGRESS
+                ? "Leave empty to show as 'Present'"
+                : formData.statusFlag === StatusFlags.MAINTAINED
+                  ? "Leave empty for ongoing maintenance"
+                  : "Required for completed/archived projects"}
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Collab Mode */}

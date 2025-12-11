@@ -56,9 +56,45 @@ export default function ProjectsPage() {
     });
   };
 
-  const calculateDuration = (start: Date, end: Date) => {
+  const formatDateRange = (
+    startDate: Date,
+    endDate: Date | null,
+    status: StatusFlags,
+  ) => {
+    const start = formatDate(startDate);
+
+    // PLANNING status: only show start date
+    if (status === StatusFlags.PLANNING) {
+      return `Expected: ${start}`;
+    }
+
+    // IN_PROGRESS with no end date: show "Present"
+    if (status === StatusFlags.IN_PROGRESS && !endDate) {
+      return `${start} - Present`;
+    }
+
+    // All other cases with end date
+    if (endDate) {
+      return `${start} - ${formatDate(endDate)}`;
+    }
+
+    // Fallback: just show start date
+    return start;
+  };
+
+  const calculateDuration = (
+    start: Date,
+    end: Date | null,
+    status: StatusFlags,
+  ) => {
+    // PLANNING doesn't show duration
+    if (status === StatusFlags.PLANNING) {
+      return null;
+    }
+
     const startDate = new Date(start);
-    const endDate = new Date(end);
+    const endDate = end ? new Date(end) : new Date(); // Use current date if no end date
+
     const months =
       (endDate.getFullYear() - startDate.getFullYear()) * 12 +
       (endDate.getMonth() - startDate.getMonth());
@@ -150,16 +186,29 @@ export default function ProjectsPage() {
                     <div className="flex items-center gap-2">
                       <FaCalendar className="shrink-0" />
                       <span>
-                        {formatDate(project.startDate)} -{" "}
-                        {formatDate(project.endDate)}
+                        {formatDateRange(
+                          project.startDate,
+                          project.endDate,
+                          project.statusFlag,
+                        )}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <FaClock className="shrink-0" />
-                      <span>
-                        {calculateDuration(project.startDate, project.endDate)}
-                      </span>
-                    </div>
+                    {calculateDuration(
+                      project.startDate,
+                      project.endDate,
+                      project.statusFlag,
+                    ) && (
+                      <div className="flex items-center gap-2">
+                        <FaClock className="shrink-0" />
+                        <span>
+                          {calculateDuration(
+                            project.startDate,
+                            project.endDate,
+                            project.statusFlag,
+                          )}
+                        </span>
+                      </div>
+                    )}
                     <div className="flex items-start gap-2">
                       <span className="shrink-0">🏢</span>
                       <span>

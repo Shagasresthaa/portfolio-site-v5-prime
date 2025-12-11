@@ -38,7 +38,7 @@ const projectInputSchema = z.object({
   longDesc: z.string().trim().optional(),
   statusFlag: StatusFlagsEnum,
   startDate: z.date(),
-  endDate: z.date(),
+  endDate: z.date().nullable(),
   collabMode: CollabModesEnum,
   affiliation: z.string().trim().min(1),
   affiliationType: AffiliationTypesEnum,
