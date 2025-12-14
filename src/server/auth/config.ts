@@ -49,7 +49,28 @@ export const authConfig = {
     strategy: "jwt",
     maxAge: 45 * 60,
   },
+  // Configure cookies for HTTPS
+  cookies: {
+    sessionToken: {
+      name: `${process.env.NODE_ENV === "production" ? "__Secure-" : ""}next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+      },
+    },
+  },
   callbacks: {
+    // Preserve the redirect URL after authentication
+    redirect: ({ url, baseUrl }) => {
+      // If url is relative (starts with /), use it
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      // If url is on the same origin, use it
+      if (new URL(url).origin === baseUrl) return url;
+      // Otherwise redirect to base URL
+      return baseUrl;
+    },
     jwt: ({ token, user }) => {
       if (user) {
         token.id = user.id;

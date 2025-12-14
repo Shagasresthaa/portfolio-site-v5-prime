@@ -5,8 +5,9 @@ import Link from "next/link";
 import { FaEdit, FaTrash, FaPlus } from "react-icons/fa";
 
 export default function AdminProjectsPage() {
-  const { data: projects, isLoading } =
-    api.projects.fetchAllProjects.useQuery();
+  const { data, isLoading } = api.projects.fetchAllProjects.useQuery();
+  const projects = data?.projects ?? [];
+
   const deleteProject = api.projects.deleteProject.useMutation({
     onSuccess: () => {
       window.location.reload();
