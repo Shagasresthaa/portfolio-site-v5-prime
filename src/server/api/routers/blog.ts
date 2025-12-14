@@ -43,6 +43,23 @@ export const blogRouter = createTRPCRouter({
     });
   }),
 
+  // Get all unique tags (public)
+  getAllTags: publicProcedure.query(async ({ ctx }) => {
+    const posts = await ctx.db.blogPost.findMany({
+      where: { published: true },
+      select: { tags: true },
+    });
+
+    const tagSet = new Set<string>();
+    posts.forEach((post) => {
+      if (post.tags) {
+        post.tags.split(",").forEach((tag) => tagSet.add(tag.trim()));
+      }
+    });
+
+    return Array.from(tagSet).sort();
+  }),
+
   // Get published posts (public)
   getPublishedPosts: publicProcedure
     .input(
@@ -56,6 +73,7 @@ export const blogRouter = createTRPCRouter({
             .max(200, "Search must be less than 200 characters")
             .transform((val) => val.trim())
             .optional(),
+          tags: z.array(z.string()).optional(),
         })
         .optional(),
     )
@@ -65,17 +83,28 @@ export const blogRouter = createTRPCRouter({
       const skip = (page - 1) * limit;
       // Search is already trimmed by Zod transform
       const search = input?.search;
+      const selectedTags = input?.tags;
 
       // Additional validation: reject if only special characters
       const isValidSearch =
         search && search.length >= 2 && /[a-zA-Z0-9]/.test(search);
 
-      // Build where clause with search
+      // Build tag filter condition
+      const tagConditions = selectedTags?.length
+        ? {
+            AND: selectedTags.map((tag) => ({
+              tags: { contains: tag, mode: "insensitive" as const },
+            })),
+          }
+        : undefined;
+
+      // Build where clause with search and tags
       const whereClause = {
         published: true,
         ...(isValidSearch && {
           title: { contains: search, mode: "insensitive" as const },
         }),
+        ...tagConditions,
       };
 
       const [posts, total] = await Promise.all([
