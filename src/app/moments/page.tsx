@@ -253,7 +253,7 @@ export default function MomentsPage() {
               </div>
 
               {/* Tag list */}
-              <div className="max-h-[540px] overflow-y-auto p-2">
+              <div className="max-h-135 overflow-y-auto p-2">
                 {filteredAvailableTags.filter(
                   (tag) => !pendingTags.includes(tag),
                 ).length > 0 ? (
