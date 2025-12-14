@@ -145,7 +145,7 @@ export default function BlogPage() {
               )}
 
               {/* Content */}
-              <div className="flex flex-col p-6">
+              <div className="flex flex-1 flex-col p-6">
                 {/* Title */}
                 <h2
                   className="mb-3 text-2xl font-bold text-white transition-colors group-hover:text-blue-400"
@@ -156,14 +156,14 @@ export default function BlogPage() {
 
                 {/* Excerpt */}
                 <p
-                  className="mb-4 grow text-white/80"
+                  className="grow text-white/80"
                   style={{ fontFamily: "var(--font-kalam)" }}
                 >
                   {post.excerpt}
                 </p>
 
-                {/* Meta */}
-                <div className="space-y-2 text-sm text-white/60">
+                {/* Meta - Always at bottom */}
+                <div className="mt-auto space-y-2 pt-4 text-sm text-white/60">
                   {post.publishedAt && (
                     <div className="flex items-center gap-2">
                       <FaCalendar className="shrink-0" />

@@ -200,7 +200,7 @@ export default function ProjectsPage() {
           className="text-xl text-white/80 md:text-2xl"
           style={{ fontFamily: "var(--font-kalam)" }}
         >
-          Things I've built, broken, and rebuilt
+          “Simplicity is the ultimate sophistication” - Leonardo da Vinci
         </p>
       </div>
 
