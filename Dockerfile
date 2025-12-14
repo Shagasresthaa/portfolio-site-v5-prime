@@ -1,5 +1,5 @@
 ##### DEPENDENCIES
-FROM --platform=linux/amd64 node:20-alpine AS deps
+FROM node:20-alpine AS deps
 RUN apk add --no-cache libc6-compat openssl
 WORKDIR /app
 
@@ -17,7 +17,7 @@ RUN \
     fi
 
 ##### BUILDER
-FROM --platform=linux/amd64 node:20-alpine AS builder
+FROM node:20-alpine AS builder
 ARG DATABASE_URL
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
@@ -33,7 +33,7 @@ RUN \
     fi
 
 ##### RUNNER
-FROM --platform=linux/amd64 node:20-alpine AS runner
+FROM node:20-alpine AS runner
 WORKDIR /app
 
 RUN apk add --no-cache openssl libc6-compat
