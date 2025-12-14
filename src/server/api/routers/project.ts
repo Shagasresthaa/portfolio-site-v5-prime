@@ -74,30 +74,54 @@ export const projectsRouter = createTRPCRouter({
 
   // Get all projects (public - for the projects page)
   // Exclude binary image data to keep response size small
-  fetchAllProjects: publicProcedure.query(async ({ ctx }) => {
-    const retrievedProjects = await ctx.db.project.findMany({
-      orderBy: { startDate: "desc" },
-      select: {
-        id: true,
-        name: true,
-        shortDesc: true,
-        longDesc: true,
-        statusFlag: true,
-        startDate: true,
-        endDate: true,
-        collabMode: true,
-        affiliation: true,
-        affiliationType: true,
-        sourceCodeAvailibility: true,
-        techStacks: true,
-        projectUrl: true,
-        liveUrl: true,
-        imageType: true, // Include type but not the binary data
-        // image: false - explicitly excluded
-      },
-    });
-    return retrievedProjects;
-  }),
+  fetchAllProjects: publicProcedure
+    .input(
+      z
+        .object({
+          page: z.number().min(1).default(1),
+          limit: z.number().min(1).max(50).default(12),
+        })
+        .optional(),
+    )
+    .query(async ({ ctx, input }) => {
+      const page = input?.page ?? 1;
+      const limit = input?.limit ?? 12;
+      const skip = (page - 1) * limit;
+
+      const [projects, total] = await Promise.all([
+        ctx.db.project.findMany({
+          orderBy: { startDate: "desc" },
+          skip,
+          take: limit,
+          select: {
+            id: true,
+            name: true,
+            shortDesc: true,
+            longDesc: true,
+            statusFlag: true,
+            startDate: true,
+            endDate: true,
+            collabMode: true,
+            affiliation: true,
+            affiliationType: true,
+            sourceCodeAvailibility: true,
+            techStacks: true,
+            projectUrl: true,
+            liveUrl: true,
+            imageType: true, // Include type but not the binary data
+            // image: false - explicitly excluded
+          },
+        }),
+        ctx.db.project.count(),
+      ]);
+
+      return {
+        projects,
+        total,
+        page,
+        totalPages: Math.ceil(total / limit),
+      };
+    }),
 
   // Get single project by ID (includes image for editing)
   fetchProjectById: publicProcedure

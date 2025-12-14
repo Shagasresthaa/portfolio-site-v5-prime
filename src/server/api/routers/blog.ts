@@ -44,21 +44,46 @@ export const blogRouter = createTRPCRouter({
   }),
 
   // Get published posts (public)
-  getPublishedPosts: publicProcedure.query(async ({ ctx }) => {
-    return ctx.db.blogPost.findMany({
-      where: { published: true },
-      orderBy: { publishedAt: "desc" },
-      select: {
-        id: true,
-        title: true,
-        slug: true,
-        excerpt: true,
-        publishedAt: true,
-        tags: true,
-        imageType: true,
-      },
-    });
-  }),
+  getPublishedPosts: publicProcedure
+    .input(
+      z
+        .object({
+          page: z.number().min(1).default(1),
+          limit: z.number().min(1).max(50).default(12),
+        })
+        .optional(),
+    )
+    .query(async ({ ctx, input }) => {
+      const page = input?.page ?? 1;
+      const limit = input?.limit ?? 12;
+      const skip = (page - 1) * limit;
+
+      const [posts, total] = await Promise.all([
+        ctx.db.blogPost.findMany({
+          where: { published: true },
+          orderBy: { publishedAt: "desc" },
+          skip,
+          take: limit,
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            excerpt: true,
+            publishedAt: true,
+            tags: true,
+            imageType: true,
+          },
+        }),
+        ctx.db.blogPost.count({ where: { published: true } }),
+      ]);
+
+      return {
+        posts,
+        total,
+        page,
+        totalPages: Math.ceil(total / limit),
+      };
+    }),
 
   // Get post by slug (public)
   getBySlug: publicProcedure

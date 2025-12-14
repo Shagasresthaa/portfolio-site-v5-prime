@@ -2,31 +2,47 @@
 
 import { api } from "@/trpc/react";
 import Link from "next/link";
-import { useState, useMemo } from "react";
-import { FaCalendar, FaTags, FaSearch } from "react-icons/fa";
+import { useState, useMemo, useRef, useEffect } from "react";
+import {
+  FaCalendar,
+  FaTags,
+  FaSearch,
+  FaChevronLeft,
+  FaChevronRight,
+  FaChevronDown,
+  FaChevronUp,
+  FaArrowRight,
+} from "react-icons/fa";
 
 export default function BlogPage() {
-  const { data: posts, isLoading } = api.blog.getPublishedPosts.useQuery();
+  const [page, setPage] = useState(1);
+  const { data, isLoading } = api.blog.getPublishedPosts.useQuery({
+    page,
+    limit: 12,
+  });
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [expandedPosts, setExpandedPosts] = useState<Set<string>>(new Set());
+  const [cardMinHeight, setCardMinHeight] = useState<number>(0);
+  const cardRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
   // Get all unique tags
   const allTags = useMemo(() => {
-    if (!posts) return [];
+    if (!data?.posts) return [];
     const tagSet = new Set<string>();
-    posts.forEach((post) => {
+    data.posts.forEach((post) => {
       if (post.tags) {
         post.tags.split(",").forEach((tag) => tagSet.add(tag.trim()));
       }
     });
     return Array.from(tagSet).sort();
-  }, [posts]);
+  }, [data?.posts]);
 
   // Filter posts by search query and selected tag
   const filteredPosts = useMemo(() => {
-    if (!posts) return [];
+    if (!data?.posts) return [];
 
-    return posts.filter((post) => {
+    return data.posts.filter((post) => {
       const matchesSearch = searchQuery
         ? post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
           post.excerpt.toLowerCase().includes(searchQuery.toLowerCase())
@@ -41,7 +57,60 @@ export default function BlogPage() {
 
       return matchesSearch && matchesTag;
     });
-  }, [posts, searchQuery, selectedTag]);
+  }, [data?.posts, searchQuery, selectedTag]);
+
+  const toggleExpanded = (postId: string) => {
+    setExpandedPosts((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(postId)) {
+        newSet.delete(postId);
+      } else {
+        newSet.add(postId);
+      }
+      return newSet;
+    });
+  };
+
+  const isExpanded = (postId: string) => expandedPosts.has(postId);
+
+  // Calculate max height of all cards when they first load (desktop only)
+  useEffect(() => {
+    const calculateHeights = () => {
+      // Only calculate on desktop (md breakpoint = 768px)
+      if (typeof window !== "undefined" && window.innerWidth >= 768) {
+        if (filteredPosts && filteredPosts.length > 0) {
+          setTimeout(() => {
+            let maxHeight = 0;
+            cardRefs.current.forEach((element) => {
+              if (element) {
+                const height = element.offsetHeight;
+                if (height > maxHeight) {
+                  maxHeight = height;
+                }
+              }
+            });
+            if (maxHeight > 0) {
+              setCardMinHeight(maxHeight);
+            }
+          }, 100);
+        }
+      } else {
+        // Reset height on mobile
+        setCardMinHeight(0);
+      }
+    };
+
+    calculateHeights();
+
+    // Recalculate on resize (e.g., orientation change)
+    const handleResize = () => {
+      setCardMinHeight(0); // Reset first
+      setTimeout(calculateHeights, 150);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [filteredPosts]);
 
   if (isLoading) {
     return (
@@ -65,7 +134,7 @@ export default function BlogPage() {
           className="text-xl text-white/80 md:text-2xl"
           style={{ fontFamily: "var(--font-kalam)" }}
         >
-          Thoughts, learnings, and occasional rants
+          "Documentation is a love letter to your future self." - Damian Conway
         </p>
       </div>
 
@@ -126,79 +195,169 @@ export default function BlogPage() {
 
       {/* Posts List */}
       {filteredPosts && filteredPosts.length > 0 ? (
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {filteredPosts.map((post) => (
-            <Link
-              key={post.id}
-              href={`/blog/${post.slug}`}
-              className="group flex flex-col overflow-hidden rounded-2xl border border-white/20 bg-white/5 backdrop-blur-md transition-all duration-300 hover:scale-105 hover:bg-white/10"
-            >
-              {/* Cover Image */}
-              {post.imageType && (
-                <div className="relative h-48 w-full overflow-hidden bg-white/5">
-                  <img
-                    src={`/api/blog/posts/${post.id}/cover`}
-                    alt={post.title}
-                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                  />
-                </div>
-              )}
+        <>
+          <div className="grid grid-cols-1 items-start gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {filteredPosts.map((post) => (
+              <div
+                key={post.id}
+                ref={(el) => {
+                  if (el) cardRefs.current.set(post.id, el);
+                }}
+                style={
+                  cardMinHeight > 0
+                    ? { minHeight: `${cardMinHeight}px` }
+                    : undefined
+                }
+                className="group flex flex-col overflow-hidden rounded-2xl border border-white/20 bg-white/5 backdrop-blur-md transition-all duration-300 hover:bg-white/10"
+              >
+                {/* Cover Image */}
+                {post.imageType && (
+                  <Link href={`/blog/${post.slug}`} className="block">
+                    <div className="relative h-48 w-full overflow-hidden bg-white/5">
+                      <img
+                        src={`/api/blog/posts/${post.id}/cover`}
+                        alt={post.title}
+                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      />
+                    </div>
+                  </Link>
+                )}
 
-              {/* Content */}
-              <div className="flex flex-1 flex-col p-6">
-                {/* Title */}
-                <h2
-                  className="mb-3 text-2xl font-bold text-white transition-colors group-hover:text-blue-400"
-                  style={{ fontFamily: "var(--font-salsa)" }}
-                >
-                  {post.title}
-                </h2>
+                {/* Content */}
+                <div className="flex flex-1 flex-col p-6">
+                  {/* Title */}
+                  <Link href={`/blog/${post.slug}`}>
+                    <h2
+                      className="mb-3 text-2xl font-bold text-white transition-colors hover:text-blue-400"
+                      style={{ fontFamily: "var(--font-salsa)" }}
+                    >
+                      {post.title}
+                    </h2>
+                  </Link>
 
-                {/* Excerpt */}
-                <p
-                  className="grow text-white/80"
-                  style={{ fontFamily: "var(--font-kalam)" }}
-                >
-                  {post.excerpt}
-                </p>
-
-                {/* Meta - Always at bottom */}
-                <div className="mt-auto space-y-2 pt-4 text-sm text-white/60">
-                  {post.publishedAt && (
-                    <div className="flex items-center gap-2">
-                      <FaCalendar className="shrink-0" />
-                      <span>
-                        {new Date(post.publishedAt).toLocaleDateString(
-                          "en-US",
-                          {
-                            month: "long",
-                            day: "numeric",
-                            year: "numeric",
-                          },
+                  {/* Excerpt */}
+                  <div className="mb-4 grow">
+                    <p
+                      className={`text-white/80 ${
+                        !isExpanded(post.id) && post.excerpt.length > 150
+                          ? "line-clamp-3"
+                          : ""
+                      }`}
+                      style={{ fontFamily: "var(--font-kalam)" }}
+                    >
+                      {post.excerpt}
+                    </p>
+                    {post.excerpt.length > 150 && (
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          toggleExpanded(post.id);
+                        }}
+                        className="mt-2 flex items-center gap-1 text-sm text-blue-400 transition hover:text-blue-300"
+                      >
+                        {isExpanded(post.id) ? (
+                          <>
+                            <FaChevronUp /> Read less
+                          </>
+                        ) : (
+                          <>
+                            <FaChevronDown /> Read more
+                          </>
                         )}
-                      </span>
-                    </div>
-                  )}
-                  {post.tags && (
-                    <div className="flex items-start gap-2">
-                      <FaTags className="mt-1 shrink-0" />
-                      <div className="flex flex-wrap gap-2">
-                        {post.tags.split(",").map((tag, idx) => (
-                          <span
-                            key={idx}
-                            className="rounded-full bg-white/10 px-2 py-1 text-xs text-white"
-                          >
-                            {tag.trim()}
-                          </span>
-                        ))}
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Meta */}
+                  <div className="space-y-2 text-sm text-white/60">
+                    {post.publishedAt && (
+                      <div className="flex items-center gap-2">
+                        <FaCalendar className="shrink-0" />
+                        <span>
+                          {new Date(post.publishedAt).toLocaleDateString(
+                            "en-US",
+                            {
+                              month: "long",
+                              day: "numeric",
+                              year: "numeric",
+                            },
+                          )}
+                        </span>
                       </div>
-                    </div>
-                  )}
+                    )}
+                    {post.tags && (
+                      <div className="flex items-start gap-2">
+                        <FaTags className="mt-1 shrink-0" />
+                        <div className="flex flex-wrap gap-2">
+                          {post.tags.split(",").map((tag, idx) => (
+                            <span
+                              key={idx}
+                              className="rounded-full bg-white/10 px-2 py-1 text-xs text-white"
+                            >
+                              {tag.trim()}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Read Post Button */}
+                  <div className="mt-auto pt-6">
+                    <Link
+                      href={`/blog/${post.slug}`}
+                      className="flex items-center justify-center gap-2 rounded-lg bg-blue-600/50 px-4 py-2 text-sm text-white transition hover:bg-blue-600/70"
+                    >
+                      Read Post
+                      <FaArrowRight />
+                    </Link>
+                  </div>
                 </div>
               </div>
-            </Link>
-          ))}
-        </div>
+            ))}
+          </div>
+
+          {/* Pagination */}
+          {data && data.totalPages > 1 && (
+            <div className="mt-12 flex items-center justify-center gap-4">
+              <button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="flex items-center gap-2 rounded-lg bg-white/10 px-4 py-2 text-white backdrop-blur-md transition hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <FaChevronLeft />
+                Previous
+              </button>
+
+              <div className="flex items-center gap-2">
+                {Array.from({ length: data.totalPages }, (_, i) => i + 1).map(
+                  (pageNum) => (
+                    <button
+                      key={pageNum}
+                      onClick={() => setPage(pageNum)}
+                      className={`h-10 w-10 rounded-lg transition ${
+                        page === pageNum
+                          ? "bg-blue-600/50 text-white"
+                          : "bg-white/10 text-white/70 hover:bg-white/20"
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  ),
+                )}
+              </div>
+
+              <button
+                onClick={() => setPage((p) => Math.min(data.totalPages, p + 1))}
+                disabled={page === data.totalPages}
+                className="flex items-center gap-2 rounded-lg bg-white/10 px-4 py-2 text-white backdrop-blur-md transition hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Next
+                <FaChevronRight />
+              </button>
+            </div>
+          )}
+        </>
       ) : (
         <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-white/30 bg-white/5 p-12 backdrop-blur-md">
           <p className="text-xl text-white/80">
