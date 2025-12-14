@@ -50,6 +50,12 @@ export const blogRouter = createTRPCRouter({
         .object({
           page: z.number().min(1).default(1),
           limit: z.number().min(1).max(50).default(12),
+          search: z
+            .string()
+            .min(2, "Search must be at least 2 characters")
+            .max(200, "Search must be less than 200 characters")
+            .transform((val) => val.trim())
+            .optional(),
         })
         .optional(),
     )
@@ -57,10 +63,24 @@ export const blogRouter = createTRPCRouter({
       const page = input?.page ?? 1;
       const limit = input?.limit ?? 12;
       const skip = (page - 1) * limit;
+      // Search is already trimmed by Zod transform
+      const search = input?.search;
+
+      // Additional validation: reject if only special characters
+      const isValidSearch =
+        search && search.length >= 2 && /[a-zA-Z0-9]/.test(search);
+
+      // Build where clause with search
+      const whereClause = {
+        published: true,
+        ...(isValidSearch && {
+          title: { contains: search, mode: "insensitive" as const },
+        }),
+      };
 
       const [posts, total] = await Promise.all([
         ctx.db.blogPost.findMany({
-          where: { published: true },
+          where: whereClause,
           orderBy: { publishedAt: "desc" },
           skip,
           take: limit,
@@ -74,7 +94,7 @@ export const blogRouter = createTRPCRouter({
             imageType: true,
           },
         }),
-        ctx.db.blogPost.count({ where: { published: true } }),
+        ctx.db.blogPost.count({ where: whereClause }),
       ]);
 
       return {

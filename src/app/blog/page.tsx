@@ -12,19 +12,75 @@ import {
   FaChevronDown,
   FaChevronUp,
   FaArrowRight,
+  FaTimes,
 } from "react-icons/fa";
 
 export default function BlogPage() {
   const [page, setPage] = useState(1);
-  const { data, isLoading } = api.blog.getPublishedPosts.useQuery({
-    page,
-    limit: 12,
-  });
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchInput, setSearchInput] = useState(""); // What user is typing
+  const [searchQuery, setSearchQuery] = useState(""); // What we actually search for
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [expandedPosts, setExpandedPosts] = useState<Set<string>>(new Set());
   const [cardMinHeight, setCardMinHeight] = useState<number>(0);
   const cardRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+
+  const { data, isLoading } = api.blog.getPublishedPosts.useQuery({
+    page,
+    limit: 12,
+    search: searchQuery || undefined,
+  });
+
+  // Reset to page 1 when search changes
+  useEffect(() => {
+    setPage(1);
+  }, [searchQuery]);
+
+  // Handle search button click
+  const handleSearch = () => {
+    const trimmed = searchInput.trim();
+
+    // Client-side validation - silently prevent invalid searches
+    if (trimmed.length === 0) {
+      setSearchQuery("");
+      return;
+    }
+
+    // Enforce min 2 chars, max 200 chars, must contain alphanumeric
+    if (
+      trimmed.length < 2 ||
+      trimmed.length > 200 ||
+      !/[a-zA-Z0-9]/.test(trimmed)
+    ) {
+      // Don't make the request - invalid search
+      return;
+    }
+
+    setSearchQuery(trimmed);
+  };
+
+  // Check if current search input is valid
+  const isSearchValid = () => {
+    const trimmed = searchInput.trim();
+    if (trimmed.length === 0) return true; // Empty is valid (clears search)
+    return (
+      trimmed.length >= 2 &&
+      trimmed.length <= 200 &&
+      /[a-zA-Z0-9]/.test(trimmed)
+    );
+  };
+
+  // Handle Enter key in search input
+  const handleSearchKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
+
+  // Clear search
+  const handleClearSearch = () => {
+    setSearchInput("");
+    setSearchQuery("");
+  };
 
   // Get all unique tags
   const allTags = useMemo(() => {
@@ -38,16 +94,12 @@ export default function BlogPage() {
     return Array.from(tagSet).sort();
   }, [data?.posts]);
 
-  // Filter posts by search query and selected tag
+  // Filter posts by selected tag (client-side on current page results)
+  // Search is now handled server-side
   const filteredPosts = useMemo(() => {
     if (!data?.posts) return [];
 
     return data.posts.filter((post) => {
-      const matchesSearch = searchQuery
-        ? post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          post.excerpt.toLowerCase().includes(searchQuery.toLowerCase())
-        : true;
-
       const matchesTag = selectedTag
         ? post.tags
             .split(",")
@@ -55,9 +107,9 @@ export default function BlogPage() {
             .includes(selectedTag)
         : true;
 
-      return matchesSearch && matchesTag;
+      return matchesTag;
     });
-  }, [data?.posts, searchQuery, selectedTag]);
+  }, [data?.posts, selectedTag]);
 
   const toggleExpanded = (postId: string) => {
     setExpandedPosts((prev) => {
@@ -134,22 +186,42 @@ export default function BlogPage() {
           className="text-xl text-white/80 md:text-2xl"
           style={{ fontFamily: "var(--font-kalam)" }}
         >
-          "Documentation is a love letter to your future self." - Damian Conway
+          Documentation is a love letter to your future self. - Damian Conway
         </p>
       </div>
 
       {/* Search and Filters */}
       <div className="mb-8 space-y-4">
         {/* Search Bar */}
-        <div className="relative">
-          <FaSearch className="absolute top-1/2 left-4 -translate-y-1/2 text-white/50" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search posts by title or content..."
-            className="w-full rounded-lg border border-white/30 bg-white/10 py-3 pr-4 pl-12 text-white placeholder-white/50 backdrop-blur-md focus:border-blue-400 focus:outline-none"
-          />
+        <div className="flex gap-2">
+          <div className="relative flex-1">
+            <FaSearch className="absolute top-1/2 left-4 -translate-y-1/2 text-white/50" />
+            <input
+              type="text"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              onKeyPress={handleSearchKeyPress}
+              placeholder="Search by title (min. 2 characters)..."
+              className="w-full rounded-lg border border-white/30 bg-white/10 py-3 pr-4 pl-12 text-white placeholder-white/50 backdrop-blur-md focus:border-blue-400 focus:outline-none"
+            />
+            {searchInput && (
+              <button
+                onClick={handleClearSearch}
+                className="absolute top-1/2 right-4 -translate-y-1/2 text-white/50 transition hover:text-white"
+                aria-label="Clear search"
+              >
+                <FaTimes />
+              </button>
+            )}
+          </div>
+          <button
+            onClick={handleSearch}
+            disabled={!isSearchValid()}
+            className="flex items-center gap-2 rounded-lg bg-blue-600/50 px-6 py-3 text-white transition hover:bg-blue-600/70 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <FaSearch />
+            Search
+          </button>
         </div>
 
         {/* Tag Filters */}
@@ -185,10 +257,17 @@ export default function BlogPage() {
         )}
 
         {/* Results count */}
-        {(searchQuery || selectedTag) && (
+        {searchQuery && (
+          <p className="text-sm text-white/60">
+            Found {data?.total ?? 0} post{data?.total !== 1 ? "s" : ""}{" "}
+            {selectedTag ? `with tag "${selectedTag}"` : ""}
+          </p>
+        )}
+        {!searchQuery && selectedTag && (
           <p className="text-sm text-white/60">
             Found {filteredPosts.length} post
-            {filteredPosts.length !== 1 ? "s" : ""}
+            {filteredPosts.length !== 1 ? "s" : ""} with tag "{selectedTag}" on
+            this page
           </p>
         )}
       </div>
@@ -368,6 +447,7 @@ export default function BlogPage() {
           {(searchQuery || selectedTag) && (
             <button
               onClick={() => {
+                setSearchInput("");
                 setSearchQuery("");
                 setSelectedTag(null);
               }}
