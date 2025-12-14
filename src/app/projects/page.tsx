@@ -12,20 +12,42 @@ import {
   FaClock,
   FaChevronLeft,
   FaChevronRight,
+  FaFilter,
+  FaTimes,
+  FaSearch,
 } from "react-icons/fa";
 import { StatusFlags, SourceCodeAvailibility } from "@prisma/client";
 
 export default function ProjectsPage() {
   const [page, setPage] = useState(1);
-  const { data, isLoading } = api.projects.fetchAllProjects.useQuery({
-    page,
-    limit: 12,
-  });
+  const [searchInput, setSearchInput] = useState(""); // What user is typing
+  const [searchQuery, setSearchQuery] = useState(""); // What we actually search for
+  const [appliedTechStacks, setAppliedTechStacks] = useState<string[]>([]);
+  const [pendingTechStacks, setPendingTechStacks] = useState<string[]>([]);
+  const [isTechStackFilterOpen, setIsTechStackFilterOpen] = useState(false);
+  const [techStackSearchInput, setTechStackSearchInput] = useState("");
   const [expandedProjects, setExpandedProjects] = useState<Set<string>>(
     new Set(),
   );
   const [cardMinHeight, setCardMinHeight] = useState<number>(0);
   const cardRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Fetch all available tech stacks
+  const { data: allTechStacksData } = api.projects.getAllTechStacks.useQuery();
+  const allTechStacks = allTechStacksData ?? [];
+
+  const { data, isLoading } = api.projects.fetchAllProjects.useQuery({
+    page,
+    limit: 12,
+    search: searchQuery || undefined,
+    techStacks: appliedTechStacks.length > 0 ? appliedTechStacks : undefined,
+  });
+
+  // Reset to page 1 when search or tech stacks change
+  useEffect(() => {
+    setPage(1);
+  }, [searchQuery, appliedTechStacks]);
 
   // Calculate max height of all cards when they first load (desktop only)
   useEffect(() => {
@@ -65,6 +87,111 @@ export default function ProjectsPage() {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, [data?.projects]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsTechStackFilterOpen(false);
+      }
+    };
+
+    if (isTechStackFilterOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isTechStackFilterOpen]);
+
+  // Handle search button click
+  const handleSearch = () => {
+    const trimmed = searchInput.trim();
+
+    // Client-side validation - silently prevent invalid searches
+    if (trimmed.length === 0) {
+      setSearchQuery("");
+      return;
+    }
+
+    // Enforce min 2 chars, max 200 chars, must contain alphanumeric
+    if (
+      trimmed.length < 2 ||
+      trimmed.length > 200 ||
+      !/[a-zA-Z0-9]/.test(trimmed)
+    ) {
+      // Don't make the request - invalid search
+      return;
+    }
+
+    setSearchQuery(trimmed);
+  };
+
+  // Check if current search input is valid
+  const isSearchValid = () => {
+    const trimmed = searchInput.trim();
+    if (trimmed.length === 0) return true; // Empty is valid (clears search)
+    return (
+      trimmed.length >= 2 &&
+      trimmed.length <= 200 &&
+      /[a-zA-Z0-9]/.test(trimmed)
+    );
+  };
+
+  // Handle Enter key in search input
+  const handleSearchKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
+
+  // Clear search
+  const handleClearSearch = () => {
+    setSearchInput("");
+    setSearchQuery("");
+  };
+
+  // Filter tech stacks based on search input in dropdown
+  const filteredAvailableTechStacks = allTechStacks.filter((stack) =>
+    techStackSearchInput
+      ? stack.toLowerCase().includes(techStackSearchInput.toLowerCase())
+      : true,
+  );
+
+  // Toggle tech stack in pending selection
+  const togglePendingTechStack = (stack: string) => {
+    setPendingTechStacks((prev) =>
+      prev.includes(stack) ? prev.filter((s) => s !== stack) : [...prev, stack],
+    );
+  };
+
+  // Remove tech stack from pending selection
+  const removePendingTechStack = (stack: string) => {
+    setPendingTechStacks((prev) => prev.filter((s) => s !== stack));
+  };
+
+  // Apply pending tech stacks to trigger actual search
+  const applyTechStackFilter = () => {
+    setAppliedTechStacks(pendingTechStacks);
+    setIsTechStackFilterOpen(false);
+  };
+
+  // Clear all tech stacks
+  const clearAllTechStacks = () => {
+    setPendingTechStacks([]);
+    setAppliedTechStacks([]);
+    setIsTechStackFilterOpen(false);
+  };
+
+  // Open filter and sync pending with applied
+  const openTechStackFilter = () => {
+    setPendingTechStacks(appliedTechStacks);
+    setIsTechStackFilterOpen(true);
+  };
 
   const toggleExpand = (projectId: string) => {
     setExpandedProjects((prev) => {
@@ -207,6 +334,194 @@ export default function ProjectsPage() {
         >
           “Simplicity is the ultimate sophistication” - Leonardo da Vinci
         </p>
+      </div>
+
+      {/* Search and Filters */}
+      <div className="mb-8 space-y-4">
+        {/* Search Bar */}
+        <div className="flex gap-2">
+          <div className="relative flex-1">
+            <FaSearch className="absolute top-1/2 left-4 -translate-y-1/2 text-white/50" />
+            <input
+              type="text"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              onKeyPress={handleSearchKeyPress}
+              placeholder="Search by project name (min. 2 characters)..."
+              className="w-full rounded-lg border border-white/30 bg-white/10 py-3 pr-4 pl-12 text-white placeholder-white/50 backdrop-blur-md focus:border-blue-400 focus:outline-none"
+            />
+            {searchInput && (
+              <button
+                onClick={handleClearSearch}
+                className="absolute top-1/2 right-4 -translate-y-1/2 text-white/50 transition hover:text-white"
+                aria-label="Clear search"
+              >
+                <FaTimes />
+              </button>
+            )}
+          </div>
+          <button
+            onClick={handleSearch}
+            disabled={!isSearchValid()}
+            className="flex items-center gap-2 rounded-lg bg-blue-600/50 px-6 py-3 text-white transition hover:bg-blue-600/70 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <FaSearch />
+            Search
+          </button>
+        </div>
+
+        {/* Tech Stack Filter and Applied Chips */}
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="relative" ref={dropdownRef}>
+            <button
+              onClick={openTechStackFilter}
+              className="flex items-center gap-2 rounded-lg bg-white/10 px-4 py-2 text-white backdrop-blur-md transition hover:bg-white/20"
+            >
+              <FaFilter />
+              Filter by Tech Stack
+              {appliedTechStacks.length > 0 && (
+                <span className="rounded-full bg-blue-600/70 px-2 py-0.5 text-xs">
+                  {appliedTechStacks.length}
+                </span>
+              )}
+            </button>
+
+            {/* Tech Stack Filter Dropdown */}
+            {isTechStackFilterOpen && (
+              <div className="absolute top-full left-0 z-50 mt-2 w-80 rounded-2xl border border-white/20 bg-white/5 shadow-xl backdrop-blur-md">
+                {/* Header with close button */}
+                <div className="flex items-center justify-between border-b border-white/20 px-4 py-3">
+                  <span className="text-sm font-semibold text-white">
+                    Select Tech Stacks
+                  </span>
+                  <button
+                    onClick={() => setIsTechStackFilterOpen(false)}
+                    className="text-white/70 transition hover:text-white"
+                    aria-label="Close"
+                  >
+                    <FaTimes />
+                  </button>
+                </div>
+
+                {/* Selected tech stacks area */}
+                {pendingTechStacks.length > 0 && (
+                  <div className="border-b border-white/20 p-3">
+                    <div className="flex flex-wrap gap-2">
+                      {pendingTechStacks.map((stack) => (
+                        <span
+                          key={stack}
+                          className="flex items-center gap-1 rounded-full bg-blue-600/50 px-3 py-1 text-xs text-white"
+                        >
+                          {stack}
+                          <button
+                            onClick={() => removePendingTechStack(stack)}
+                            className="transition hover:text-red-300"
+                            aria-label={`Remove ${stack}`}
+                          >
+                            <FaTimes className="text-xs" />
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Search tech stacks */}
+                <div className="border-b border-white/20 p-3">
+                  <div className="relative">
+                    <FaSearch className="absolute top-1/2 left-3 -translate-y-1/2 text-sm text-white/50" />
+                    <input
+                      type="text"
+                      value={techStackSearchInput}
+                      onChange={(e) => setTechStackSearchInput(e.target.value)}
+                      placeholder="Search tech stacks..."
+                      className="w-full rounded-lg border border-white/30 bg-white/10 py-2 pr-3 pl-9 text-sm text-white placeholder-white/50 backdrop-blur-md focus:border-blue-400 focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                {/* Tech stack list */}
+                <div className="max-h-135 overflow-y-auto p-2">
+                  {filteredAvailableTechStacks.filter(
+                    (stack) => !pendingTechStacks.includes(stack),
+                  ).length > 0 ? (
+                    filteredAvailableTechStacks
+                      .filter((stack) => !pendingTechStacks.includes(stack))
+                      .map((stack) => (
+                        <button
+                          key={stack}
+                          onClick={() => togglePendingTechStack(stack)}
+                          className="w-full rounded-lg px-4 py-2 text-left text-sm text-white transition hover:bg-white/10"
+                        >
+                          {stack}
+                        </button>
+                      ))
+                  ) : (
+                    <p className="px-3 py-4 text-center text-sm text-white/50">
+                      {pendingTechStacks.length > 0
+                        ? "All tech stacks selected"
+                        : "No tech stacks found"}
+                    </p>
+                  )}
+                </div>
+
+                {/* Footer with Apply and Clear buttons */}
+                <div className="space-y-2 border-t border-white/20 p-3">
+                  <button
+                    onClick={applyTechStackFilter}
+                    className="w-full rounded-lg bg-blue-600/50 px-4 py-2 text-sm text-white transition hover:bg-blue-600/70"
+                  >
+                    Apply Filters{" "}
+                    {pendingTechStacks.length > 0 &&
+                      `(${pendingTechStacks.length})`}
+                  </button>
+                  {pendingTechStacks.length > 0 && (
+                    <button
+                      onClick={() => setPendingTechStacks([])}
+                      className="w-full rounded-lg bg-white/10 px-4 py-2 text-sm text-white/70 transition hover:bg-white/20"
+                    >
+                      Clear Selection
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Applied Tech Stack Chips */}
+          {appliedTechStacks.map((stack) => (
+            <span
+              key={stack}
+              className="flex items-center gap-2 rounded-full bg-blue-600/50 px-3 py-1 text-sm text-white"
+            >
+              {stack}
+              <button
+                onClick={() => {
+                  setAppliedTechStacks((prev) =>
+                    prev.filter((s) => s !== stack),
+                  );
+                }}
+                className="transition hover:text-red-300"
+                aria-label={`Remove ${stack}`}
+              >
+                <FaTimes className="text-xs" />
+              </button>
+            </span>
+          ))}
+        </div>
+
+        {/* Results count */}
+        {searchQuery && (
+          <p className="mb-4 text-sm text-white/60">
+            Found {data?.total ?? 0} project{data?.total !== 1 ? "s" : ""}
+          </p>
+        )}
+        {!searchQuery && appliedTechStacks.length > 0 && (
+          <p className="mb-4 text-sm text-white/60">
+            Found {data?.total ?? 0} project{data?.total !== 1 ? "s" : ""} with
+            selected tech stacks
+          </p>
+        )}
       </div>
 
       {/* Projects Grid */}
@@ -442,7 +757,24 @@ export default function ProjectsPage() {
         </>
       ) : (
         <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-white/30 bg-white/5 p-12 backdrop-blur-md">
-          <p className="text-xl text-white/80">No projects to display yet</p>
+          <p className="text-xl text-white/80">
+            {searchQuery || appliedTechStacks.length > 0
+              ? "No projects found matching your filters"
+              : "No projects to display yet"}
+          </p>
+          {(searchQuery || appliedTechStacks.length > 0) && (
+            <button
+              onClick={() => {
+                setSearchInput("");
+                setSearchQuery("");
+                setAppliedTechStacks([]);
+                setPendingTechStacks([]);
+              }}
+              className="mt-4 text-blue-400 hover:text-blue-300"
+            >
+              Clear filters
+            </button>
+          )}
         </div>
       )}
     </div>

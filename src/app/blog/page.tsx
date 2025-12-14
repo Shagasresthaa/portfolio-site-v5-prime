@@ -226,7 +226,7 @@ export default function BlogPage() {
           className="text-xl text-white/80 md:text-2xl"
           style={{ fontFamily: "var(--font-kalam)" }}
         >
-          Documentation is a love letter to your future self. - Damian Conway
+          Documentation is a love letter to your future self! - Damian Conway
         </p>
       </div>
 
@@ -335,7 +335,7 @@ export default function BlogPage() {
                 </div>
 
                 {/* Tag list - vertical scrollable list, hide already selected tags */}
-                <div className="max-h-[540px] overflow-y-auto p-2">
+                <div className="max-h-135 overflow-y-auto p-2">
                   {filteredAvailableTags.filter(
                     (tag) => !pendingTags.includes(tag),
                   ).length > 0 ? (

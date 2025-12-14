@@ -72,6 +72,24 @@ export const projectsRouter = createTRPCRouter({
       return project;
     }),
 
+  // Get all unique tech stacks (public)
+  getAllTechStacks: publicProcedure.query(async ({ ctx }) => {
+    const projects = await ctx.db.project.findMany({
+      select: { techStacks: true },
+    });
+
+    const techStackSet = new Set<string>();
+    projects.forEach((project) => {
+      if (project.techStacks) {
+        project.techStacks
+          .split(",")
+          .forEach((stack) => techStackSet.add(stack.trim()));
+      }
+    });
+
+    return Array.from(techStackSet).sort();
+  }),
+
   // Get all projects (public - for the projects page)
   // Exclude binary image data to keep response size small
   fetchAllProjects: publicProcedure
@@ -80,6 +98,13 @@ export const projectsRouter = createTRPCRouter({
         .object({
           page: z.number().min(1).default(1),
           limit: z.number().min(1).max(50).default(12),
+          search: z
+            .string()
+            .min(2, "Search must be at least 2 characters")
+            .max(200, "Search must be less than 200 characters")
+            .transform((val) => val.trim())
+            .optional(),
+          techStacks: z.array(z.string()).optional(),
         })
         .optional(),
     )
@@ -87,9 +112,34 @@ export const projectsRouter = createTRPCRouter({
       const page = input?.page ?? 1;
       const limit = input?.limit ?? 12;
       const skip = (page - 1) * limit;
+      const selectedTechStacks = input?.techStacks;
+      // Search is already trimmed by Zod transform
+      const search = input?.search;
+
+      // Additional validation: reject if only special characters
+      const isValidSearch =
+        search && search.length >= 2 && /[a-zA-Z0-9]/.test(search);
+
+      // Build tech stack filter condition
+      const techStackConditions = selectedTechStacks?.length
+        ? {
+            AND: selectedTechStacks.map((stack) => ({
+              techStacks: { contains: stack, mode: "insensitive" as const },
+            })),
+          }
+        : undefined;
+
+      // Build where clause with search and tech stacks
+      const whereClause = {
+        ...(isValidSearch && {
+          name: { contains: search, mode: "insensitive" as const },
+        }),
+        ...techStackConditions,
+      };
 
       const [projects, total] = await Promise.all([
         ctx.db.project.findMany({
+          where: Object.keys(whereClause).length > 0 ? whereClause : undefined,
           orderBy: { startDate: "desc" },
           skip,
           take: limit,
@@ -112,7 +162,9 @@ export const projectsRouter = createTRPCRouter({
             // image: false - explicitly excluded
           },
         }),
-        ctx.db.project.count(),
+        ctx.db.project.count({
+          where: Object.keys(whereClause).length > 0 ? whereClause : undefined,
+        }),
       ]);
 
       return {

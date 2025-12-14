@@ -19,7 +19,7 @@ export default function HomeComponent() {
 
   const socialLinks = [
     {
-      href: "https://www.linkedin.com/in/sresthaa-shaga-a5329b154",
+      href: "https://www.linkedin.com/in/sresthaa-shaga/",
       icon: <FaLinkedin className="h-8 w-8" />,
       hoverColor: "hover:text-blue-400",
       label: "LinkedIn",
