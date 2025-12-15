@@ -14,12 +14,14 @@ export default function EditProjectPage({
 }) {
   const { id } = use(params);
   const router = useRouter();
+  const utils = api.useUtils();
 
   const { data: project, isLoading } = api.projects.fetchProjectById.useQuery({
     id,
   });
   const updateProject = api.projects.updateProject.useMutation({
-    onSuccess: () => {
+    onSuccess: async () => {
+      await utils.projects.invalidate();
       router.push("/admin/projects");
     },
   });

@@ -14,10 +14,12 @@ export default function EditMomentPage({
 }) {
   const { id } = use(params);
   const router = useRouter();
+  const utils = api.useUtils();
 
   const { data: moment, isLoading } = api.gallery.getById.useQuery({ id });
   const updateMoment = api.gallery.update.useMutation({
-    onSuccess: () => {
+    onSuccess: async () => {
+      await utils.gallery.invalidate();
       router.push("/admin/moments");
     },
   });

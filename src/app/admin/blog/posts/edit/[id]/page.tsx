@@ -14,10 +14,12 @@ export default function EditBlogPostPage({
 }) {
   const { id } = use(params);
   const router = useRouter();
+  const utils = api.useUtils();
 
   const { data: post, isLoading } = api.blog.getById.useQuery({ id });
   const updatePost = api.blog.update.useMutation({
-    onSuccess: () => {
+    onSuccess: async () => {
+      await utils.blog.invalidate();
       router.push("/admin/blog/posts");
     },
   });
