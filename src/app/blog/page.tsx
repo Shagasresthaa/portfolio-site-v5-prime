@@ -212,14 +212,24 @@ export default function BlogPage() {
       setTimeout(() => {
         const newTruncatedSet = new Set<string>();
         excerptRefs.current.forEach((element, postId) => {
-          if (element && element.scrollHeight > element.clientHeight) {
-            newTruncatedSet.add(postId);
+          if (element) {
+            // Get computed line-height
+            const lineHeight = parseFloat(
+              window.getComputedStyle(element).lineHeight,
+            );
+            // Calculate max height for 3 lines
+            const maxHeight = lineHeight * 3;
+            // Check natural scroll height against max
+            if (element.scrollHeight > maxHeight + 5) {
+              // +5px buffer for rounding
+              newTruncatedSet.add(postId);
+            }
           }
         });
         setTruncatedPosts(newTruncatedSet);
       }, 100);
     }
-  }, [data?.posts, expandedPosts]);
+  }, [data?.posts]);
 
   if (isLoading) {
     return (
@@ -481,7 +491,9 @@ export default function BlogPage() {
                         if (el) excerptRefs.current.set(post.id, el);
                       }}
                       className={`text-white/80 ${
-                        !isExpanded(post.id) ? "line-clamp-3" : ""
+                        truncatedPosts.has(post.id) && !isExpanded(post.id)
+                          ? "line-clamp-3"
+                          : ""
                       }`}
                       style={{ fontFamily: "var(--font-kalam)" }}
                     >
