@@ -25,8 +25,10 @@ export default function BlogPage() {
   const [isTagFilterOpen, setIsTagFilterOpen] = useState(false);
   const [tagSearchInput, setTagSearchInput] = useState("");
   const [expandedPosts, setExpandedPosts] = useState<Set<string>>(new Set());
+  const [truncatedPosts, setTruncatedPosts] = useState<Set<string>>(new Set());
   const [cardMinHeight, setCardMinHeight] = useState<number>(0);
   const cardRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+  const excerptRefs = useRef<Map<string, HTMLParagraphElement>>(new Map());
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Fetch all available tags
@@ -203,6 +205,21 @@ export default function BlogPage() {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, [data?.posts]);
+
+  // Detect which excerpts are actually truncated
+  useEffect(() => {
+    if (data?.posts) {
+      setTimeout(() => {
+        const newTruncatedSet = new Set<string>();
+        excerptRefs.current.forEach((element, postId) => {
+          if (element && element.scrollHeight > element.clientHeight) {
+            newTruncatedSet.add(postId);
+          }
+        });
+        setTruncatedPosts(newTruncatedSet);
+      }, 100);
+    }
+  }, [data?.posts, expandedPosts]);
 
   if (isLoading) {
     return (
@@ -460,16 +477,17 @@ export default function BlogPage() {
                   {/* Excerpt */}
                   <div className="mb-4 grow">
                     <p
+                      ref={(el) => {
+                        if (el) excerptRefs.current.set(post.id, el);
+                      }}
                       className={`text-white/80 ${
-                        !isExpanded(post.id) && post.excerpt.length > 150
-                          ? "line-clamp-3"
-                          : ""
+                        !isExpanded(post.id) ? "line-clamp-3" : ""
                       }`}
                       style={{ fontFamily: "var(--font-kalam)" }}
                     >
                       {post.excerpt}
                     </p>
-                    {post.excerpt.length > 150 && (
+                    {truncatedPosts.has(post.id) && (
                       <button
                         onClick={(e) => {
                           e.preventDefault();
