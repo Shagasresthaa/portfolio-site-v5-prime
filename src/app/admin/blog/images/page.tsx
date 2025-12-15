@@ -2,7 +2,14 @@
 
 import { api } from "@/trpc/react";
 import { useState } from "react";
-import { FaUpload, FaCopy, FaTrash, FaCheck } from "react-icons/fa";
+import {
+  FaUpload,
+  FaCopy,
+  FaTrash,
+  FaCheck,
+  FaArrowLeft,
+} from "react-icons/fa";
+import Link from "next/link";
 
 export default function BlogImagesPage() {
   const { data: images, isLoading, refetch } = api.blog.getAllImages.useQuery();
@@ -75,6 +82,14 @@ export default function BlogImagesPage() {
 
   return (
     <div className="container mx-auto min-h-screen px-4 pt-24 pb-12">
+      <Link
+        href="/admin/blog"
+        className="mb-6 inline-flex items-center gap-2 rounded-lg bg-white/10 px-4 py-2 text-white backdrop-blur-md transition hover:bg-white/20"
+      >
+        <FaArrowLeft />
+        <span>Back to Blog Admin</span>
+      </Link>
+
       <div className="mb-8">
         <h1 className="mb-2 text-4xl font-bold text-white">Blog Images</h1>
         <p className="text-white/70">

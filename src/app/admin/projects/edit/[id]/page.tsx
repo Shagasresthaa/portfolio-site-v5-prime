@@ -4,6 +4,8 @@ import { api } from "@/trpc/react";
 import { useRouter } from "next/navigation";
 import { ProjectForm } from "../../_components/ProjectForm";
 import { use } from "react";
+import Link from "next/link";
+import { FaArrowLeft } from "react-icons/fa";
 
 export default function EditProjectPage({
   params,
@@ -40,6 +42,14 @@ export default function EditProjectPage({
 
   return (
     <div className="container mx-auto px-4 py-8">
+      <Link
+        href="/admin/projects"
+        className="mb-6 inline-flex items-center gap-2 rounded-lg bg-white/10 px-4 py-2 text-white backdrop-blur-md transition hover:bg-white/20"
+      >
+        <FaArrowLeft />
+        <span>Back to Projects</span>
+      </Link>
+
       <h1 className="mb-8 text-4xl font-bold">Edit Project</h1>
       <ProjectForm
         initialData={project}

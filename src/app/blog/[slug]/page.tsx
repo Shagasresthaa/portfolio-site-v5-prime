@@ -6,8 +6,9 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
-import { FaCalendar, FaTags } from "react-icons/fa";
+import { FaCalendar, FaTags, FaArrowLeft } from "react-icons/fa";
 import DOMPurify from "isomorphic-dompurify";
+import Link from "next/link";
 
 export default function BlogPostPage({
   params,
@@ -63,6 +64,15 @@ export default function BlogPostPage({
 
   return (
     <div className="container mx-auto min-h-screen px-4 pt-24 pb-12">
+      {/* Back Button */}
+      <Link
+        href="/blog"
+        className="mb-6 inline-flex items-center gap-2 rounded-lg bg-white/10 px-4 py-2 text-white backdrop-blur-md transition hover:bg-white/20"
+      >
+        <FaArrowLeft />
+        <span>Back to Blog</span>
+      </Link>
+
       <article className="mx-auto max-w-7xl rounded-2xl border border-white/20 bg-white/5 p-8 shadow-xl backdrop-blur-md">
         {/* Cover Image */}
         {post.imageType && (
