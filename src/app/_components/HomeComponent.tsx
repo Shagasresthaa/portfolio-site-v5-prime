@@ -8,6 +8,7 @@ import {
   FaSteam,
   FaChevronDown,
 } from "react-icons/fa";
+import { FaSquareGitlab } from "react-icons/fa6";
 
 export default function HomeComponent() {
   const handleScrollToAbout = () => {
@@ -27,8 +28,14 @@ export default function HomeComponent() {
     {
       href: "https://github.com/Shagasresthaa",
       icon: <FaGithub className="h-8 w-8" />,
-      hoverColor: "hover:text-gray-300",
+      hoverColor: "hover:text-black",
       label: "GitHub",
+    },
+    {
+      href: "https://gitlab.com/sresthaa-shaga",
+      icon: <FaSquareGitlab className="h-8 w-8" />,
+      hoverColor: "hover:text-orange-500",
+      label: "GitLab",
     },
     {
       href: "https://drive.google.com/file/d/13PJt4xrrdotOcVET3wA536C4uIQ-rJI0/view?usp=sharing",

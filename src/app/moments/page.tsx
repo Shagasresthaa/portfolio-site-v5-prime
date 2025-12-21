@@ -9,6 +9,7 @@ import {
   FaFilter,
   FaTimes,
   FaSearch,
+  FaEye,
 } from "react-icons/fa";
 
 export default function MomentsPage() {
@@ -19,6 +20,11 @@ export default function MomentsPage() {
   const [tagSearchInput, setTagSearchInput] = useState("");
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const [cardMinHeight, setCardMinHeight] = useState<number>(0);
+  const [selectedMoment, setSelectedMoment] = useState<{
+    id: string;
+    title: string;
+    caption: string | null;
+  } | null>(null);
   const cardRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -337,13 +343,40 @@ export default function MomentsPage() {
                 className="flex flex-col rounded-2xl border border-white/20 bg-white/5 backdrop-blur-md transition-all duration-300 hover:bg-white/10"
               >
                 {/* Media - Fixed aspect ratio container */}
-                <div className="relative aspect-video w-full overflow-hidden rounded-t-2xl bg-black/20">
+                <div
+                  className={`relative aspect-video w-full overflow-hidden rounded-t-2xl bg-black/20 ${item.mediaType === "IMAGE" ? "group cursor-pointer" : ""}`}
+                  onClick={() => {
+                    if (item.mediaType === "IMAGE") {
+                      setSelectedMoment({
+                        id: item.id,
+                        title: item.title,
+                        caption: item.caption,
+                      });
+                    }
+                  }}
+                >
                   {item.mediaType === "IMAGE" && item.imageType ? (
-                    <img
-                      src={`/api/gallery/${item.id}/image`}
-                      alt={item.title}
-                      className="absolute inset-0 h-full w-full object-cover"
-                    />
+                    <>
+                      <img
+                        src={`/api/gallery/${item.id}/image`}
+                        alt={item.title}
+                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      />
+                      {/* Desktop hover overlay */}
+                      <div className="absolute inset-0 hidden items-center justify-center bg-black/0 transition-all duration-300 group-hover:bg-black/30 md:flex">
+                        <div className="flex items-center gap-2 rounded-full bg-white/90 px-4 py-2 text-gray-800 opacity-0 shadow-lg transition-all duration-300 group-hover:opacity-100">
+                          <FaEye className="h-4 w-4" />
+                          <span className="text-sm font-medium">View</span>
+                        </div>
+                      </div>
+                      {/* Mobile view button - always visible */}
+                      <div className="absolute top-2 right-2 md:hidden">
+                        <div className="flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 text-gray-800 shadow-lg">
+                          <FaEye className="h-3.5 w-3.5" />
+                          <span className="text-xs font-medium">View</span>
+                        </div>
+                      </div>
+                    </>
                   ) : item.mediaType === "VIDEO" && item.videoUrl ? (
                     <iframe
                       src={`https://www.youtube.com/embed/${getYouTubeId(item.videoUrl)}`}
@@ -477,6 +510,47 @@ export default function MomentsPage() {
               Clear filters
             </button>
           )}
+        </div>
+      )}
+
+      {/* Image Modal */}
+      {selectedMoment && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
+          onClick={() => setSelectedMoment(null)}
+        >
+          <div
+            className="relative max-h-[90vh] max-w-4xl overflow-hidden rounded-2xl bg-white/10 backdrop-blur-md"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close button */}
+            <button
+              onClick={() => setSelectedMoment(null)}
+              className="absolute top-4 right-4 z-10 rounded-full bg-black/50 p-2 text-white transition hover:bg-black/70"
+              aria-label="Close"
+            >
+              <FaTimes className="h-6 w-6" />
+            </button>
+
+            {/* Image */}
+            <img
+              src={`/api/gallery/${selectedMoment.id}/image`}
+              alt={selectedMoment.title}
+              className="max-h-[70vh] w-full object-contain"
+            />
+
+            {/* Caption */}
+            {selectedMoment.caption && (
+              <div className="border-t border-white/20 bg-black/30 p-4 text-center">
+                <p
+                  className="text-sm text-white/80 italic"
+                  style={{ fontFamily: "var(--font-kalam)" }}
+                >
+                  "{selectedMoment.caption}"
+                </p>
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>
