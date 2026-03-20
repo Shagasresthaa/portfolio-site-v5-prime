@@ -24,7 +24,7 @@ export default function NewProjectPage() {
         <span>Back to Projects</span>
       </Link>
 
-      <h1 className="mb-8 text-4xl font-bold">Create New Project</h1>
+      <h1 className="mb-8 text-4xl font-bold text-white">Create New Project</h1>
       <ProjectForm
         onSubmit={(data) => createProject.mutate(data)}
         isSubmitting={createProject.isPending}

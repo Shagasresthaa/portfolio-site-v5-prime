@@ -34,7 +34,7 @@ export default function RootLayout({
         <Navbar />
 
         {/* Main content with session handling */}
-        <div className="relative z-10">
+        <div className="relative z-10 pt-11">
           <TRPCReactProvider>{children}</TRPCReactProvider>
         </div>
         <Footer />

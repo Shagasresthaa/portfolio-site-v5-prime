@@ -132,7 +132,7 @@ export function BlogPostForm({
             <button
               type="button"
               onClick={handleSlugGenerate}
-              className="rounded bg-purple-600/50 px-4 text-white transition hover:bg-purple-600/70"
+              className="rounded bg-blue-600/50 px-4 text-white transition hover:bg-blue-600/70"
             >
               Generate
             </button>
