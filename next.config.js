@@ -7,6 +7,23 @@ import "./src/env.js";
 /** @type {import("next").NextConfig} */
 const config = {
   output: "standalone",
+  serverExternalPackages: [
+    "pg",
+    "@prisma/adapter-pg",
+    "pg-connection-string",
+    "pgpass",
+  ],
+  turbopack: {
+    resolveAlias: {
+      "@prisma/adapter-pg": { browser: "./pg-browser-stub.mjs" },
+      pg: { browser: "./pg-browser-stub.mjs" },
+      "pg-connection-string": { browser: "./pg-browser-stub.mjs" },
+      pgpass: { browser: "./pg-browser-stub.mjs" },
+      "@/server/db": { browser: "./db-browser-stub.mjs" },
+      "@/server/api/trpc": { browser: "./db-browser-stub.mjs" },
+      "@/server/api/root": { browser: "./db-browser-stub.mjs" },
+    },
+  },
 
   async headers() {
     return [
